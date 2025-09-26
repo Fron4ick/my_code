@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TOP_SHTATS — Анализ выручки по штатам (Top 10)</title>
+
+  <!-- Опционально: шрифт (если нет интернета, браузер подставит системный) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- PapaParse (CSV parser) -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#101722;
+      --muted:#a9b2bf;
+      --accent:#4aa3ff;
+      --accent-2:#7be3ff;
+      --panel-bg: rgba(255,255,255,0.06);
+      --glass-border: rgba(255,255,255,0.06);
+      --table-row-even: rgba(255,255,255,0.02);
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      background: linear-gradient(180deg, #0f1a26 0%, #17202a 100%);
+      color:#e9f1f7;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .wrap{
+      max-width:1100px;
+      margin:36px auto;
+      padding:28px;
+    }
+
+    header.app-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:20px;
+    }
+
+    .logo {
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .logo .mark{
+      width:56px;
+      height:56px;
+      border-radius:12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 8px 30px rgba(74,163,255,0.12), inset 0 -6px 18px rgba(255,255,255,0.06);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      font-size:18px;
+      color:#071024;
+    }
+    .logo .title h1{
+      font-size:20px;
+      margin:0;
+      color:#ffffff;
+      letter-spacing:0.2px;
+    }
+    .logo .title p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .control-card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      padding:12px 14px;
+      border-radius:10px;
+      border:1px solid var(--glass-border);
+      box-shadow: 0 6px 20px rgba(2,8,20,0.5);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    select#yearSelect{
+      background:transparent;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,0.04);
+      padding:8px 10px;
+      border-radius:8px;
+      appearance:none;
+      -webkit-appearance:none;
+      font-weight:600;
+      cursor:pointer;
+    }
+
+    .btn{
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color:#071024;
+      border:none;
+      padding:8px 12px;
+      border-radius:8px;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow: 0 8px 20px rgba(74,163,255,0.12);
+    }
+    .btn.ghost{
+      background:transparent;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,0.04);
+      box-shadow:none;
+    }
+
+    main.card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:14px;
+      padding:18px;
+      margin-top:8px;
+      border:1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 20px 50px rgba(2,6,20,0.6);
+    }
+
+    .panel-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .selector{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border-radius:10px;
+      padding:6px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    }
+
+    table.report{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+      color:#eaf4ff;
+      font-size:14px;
+    }
+
+    table.report thead th{
+      text-align:left;
+      padding:12px 14px;
+      font-weight:600;
+      color:#ffffff;
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-bottom:1px solid rgba(255,255,255,0.04);
+      position:sticky;
+      top:0;
+      z-index:2;
+    }
+
+    table.report tbody td{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,0.03);
+      vertical-align:middle;
+    }
+
+    table.report tbody tr:nth-child(even){
+      background:var(--table-row-even);
+    }
+
+    .col-idx{
+      width:56px;
+      color:var(--muted);
+    }
+    .col-state{
+      width:40%;
+      font-weight:600;
+      color:#fff;
+    }
+    .col-count{
+      text-align:center;
+      color:var(--muted);
+    }
+    .col-sales{
+      text-align:right;
+      font-weight:700;
+      color:var(--accent-2);
+    }
+
+    .summary {
+      margin-top:12px;
+      padding:12px;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+      border:1px solid rgba(255,255,255,0.02);
+      flex-wrap:wrap;
+    }
+    .summary .left{
+      color:var(--muted);
+      font-size:14px;
+    }
+    .summary .total{
+      font-size:18px;
+      font-weight:700;
+      color:#ffffff;
+    }
+
+    .summary .top10{
+      text-align:right;
+      min-width:220px;
+    }
+    .summary .top10 .label { color:var(--muted); font-size:13px; }
+    .summary .top10 .value { font-weight:700; font-size:16px; color:var(--accent-2); }
+
+    .small-muted{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .empty-block{
+      text-align:center;
+      padding:28px 16px;
+      color:var(--muted);
+      border-radius:10px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+      border:1px dashed rgba(255,255,255,0.03);
+    }
+
+    .file-input {
+      margin-top:12px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .drop-area{
+      margin-top:12px;
+      padding:18px;
+      border-radius:10px;
+      border:1px dashed rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.01);
+      color:var(--muted);
+    }
+
+    @media (max-width:800px){
+      .wrap{ padding:18px; }
+      .logo h1{ font-size:18px; }
+      table.report { font-size:13px; min-width:640px; }
+      .summary { flex-direction:column; align-items:flex-start; }
+      .summary .top10 { text-align:left; min-width:unset; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="app-header">
+      <div class="logo">
+        <div class="mark">TS</div>
+        <div class="title">
+          <h1>TOP_SHTATS</h1>
+          <p>Анализ выручки по штатам — Top 10</p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="control-card selector" style="padding-right:12px;">
+          <span class="small-muted">Выберите год:</span>
+          <select id="yearSelect"><option value="">— Год —</option></select>
+        </div>
+      </div>
+    </header>
+
+    <main class="card" id="mainCard">
+      <div class="panel-top">
+        <div>
+          <h2 style="margin:0 0 6px 0;">Анализ выручки по штатам (Top 10)</h2>
+        </div>
+        <div class="small-muted" id="statusInfo">Попытка автозагрузки CSV...</div>
+      </div>
+
+      <div id="contentArea">
+        <div class="empty-block" id="emptyMessage" aria-live="polite">
+          <div id="emptyText">
+            Идёт попытка загрузить <code>orders_customers.csv</code> автоматически... Если страница открыта локально без сервера, автозагрузка может быть запрещена браузером.
+          </div>
+
+          <div class="file-input" style="width:100%; justify-content:center;">
+            <label class="btn" for="fileInputBtn" style="cursor:pointer;">Выбрать CSV-файл</label>
+            <input id="fileInputBtn" type="file" accept=".csv,text/csv" style="display:none;">
+            <button id="showExampleBtn" class="btn ghost">Показать подсказку по формату</button>
+          </div>
+
+          <div class="drop-area" id="dropArea">
+            Перетащите CSV-файл сюда или нажмите "Выбрать CSV-файл". Файл должен содержать колонки с названием штата (state, State) и датой заказа (order_date, OrderDate или похожее), а также продажами (sales, Sales).
+          </div>
+        </div>
+
+        <div id="tableArea" style="display:none;">
+          <div class="table-wrap" aria-live="polite">
+            <table class="report" id="reportTable" aria-describedby="tableDescription">
+              <thead>
+                <tr>
+                  <th class="col-idx">№</th>
+                  <th class="col-state">Штат</th>
+                  <th class="col-count">Кол-во заказов</th>
+                  <th class="col-sales">Выручка ($)</th>
+                </tr>
+              </thead>
+              <tbody id="reportBody">
+                <!-- rows injected by JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="summary" role="status">
+            <div class="left">
+              <div class="small-muted">Показано Top <span id="shownCount">0</span> штатов</div>
+            </div>
+
+            <div class="top10">
+              <div class="small-muted">Сумма выручки Top-10:</div>
+              <div class="value" id="top10Revenue">$0.00</div>
+              <div class="small-muted" style="margin-top:6px;">Доля Top-10 от общей выручки:</div>
+              <div class="value" id="top10Share">0.00%</div>
+            </div>
+
+            <div>
+              <div class="small-muted">Общая выручка за год</div>
+              <div class="total" id="totalRevenue">$0.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Глобальные
+    let rawData = [];
+    let aggregatedByYear = {};
+    const yearSelect = document.getElementById('yearSelect');
+    const statusInfo = document.getElementById('statusInfo');
+    const emptyMessage = document.getElementById('emptyMessage');
+    const tableArea = document.getElementById('tableArea');
+    const reportBody = document.getElementById('reportBody');
+    const totalRevenueEl = document.getElementById('totalRevenue');
+    const shownCountEl = document.getElementById('shownCount');
+    const top10RevenueEl = document.getElementById('top10Revenue');
+    const top10ShareEl = document.getElementById('top10Share');
+
+    const fileInputBtn = document.getElementById('fileInputBtn');
+    const dropArea = document.getElementById('dropArea');
+    const showExampleBtn = document.getElementById('showExampleBtn');
+    const emptyText = document.getElementById('emptyText');
+
+    const usdFormatter = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 2
+    });
+
+    // Попытка автозагрузки при старте (если страница запущена через http(s))
+    (async function tryAutoLoad() {
+      const candidates = ['orders_customers.csv', 'data/orders_customers.csv'];
+      let loaded = false;
+      for (const path of candidates) {
+        try {
+          statusInfo.textContent = `Пытаюсь загрузить ${path} ...`;
+          const resp = await fetch(path);
+          if (!resp.ok) {
+            // попробуем следующий
+            continue;
+          }
+          const text = await resp.text();
+          parseCSVText(text);
+          loaded = true;
+          break;
+        } catch (err) {
+          // Ошибка — чаще всего из-за CORS/file:// или отсутствия сервера
+          console.warn('fetch error for', path, err);
+          continue;
+        }
+      }
+      if (!loaded){
+        statusInfo.textContent = 'Не удалось автозагрузить CSV. Выберите файл вручную или перетащите его.';
+        // показать область выбора файла (она уже видима в emptyMessage)
+      }
+    })();
+
+    // Обработка выбора файла пользователем
+    fileInputBtn.addEventListener('change', (e)=>{
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      statusInfo.textContent = `Загружаю выбранный файл: ${f.name} ...`;
+      // Используем Papa.parse напрямую с файлом (он умеет читать File)
+      if (window.Papa && Papa.parse) {
+        Papa.parse(f, {
+          header: true,
+          skipEmptyLines: true,
+          complete: function(results){
+            rawData = results.data;
+            postProcessData();
+          },
+          error: function(err){
+            console.error('PapaParse error', err);
+            statusInfo.textContent = 'Ошибка парсинга CSV';
+          }
+        });
+      } else {
+        // Небольшой fallback: прочитать через FileReader и parse текстом
+        const reader = new FileReader();
+        reader.onload = function(ev){
+          parseCSVText(ev.target.result);
+        };
+        reader.onerror = function(){
+          statusInfo.textContent = 'Ошибка чтения файла';
+        };
+        reader.readAsText(f, 'utf-8');
+      }
+    });
+
+    // Drag and drop
+    ;['dragenter','dragover','dragleave','drop'].forEach(evt=>{
+      dropArea.addEventListener(evt, (e)=>e.preventDefault());
+    });
+    dropArea.addEventListener('dragover', ()=>{ dropArea.style.borderColor = 'rgba(123,227,255,0.6)'; });
+    dropArea.addEventListener('dragleave', ()=>{ dropArea.style.borderColor = ''; });
+    dropArea.addEventListener('drop', (e)=>{
+      dropArea.style.borderColor = '';
+      const f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!f) return;
+      statusInfo.textContent = `Загружаю перетянутый файл: ${f.name} ...`;
+      if (window.Papa && Papa.parse) {
+        Papa.parse(f, {
+          header: true,
+          skipEmptyLines: true,
+          complete: function(results){
+            rawData = results.data;
+            postProcessData();
+          },
+          error: function(err){
+            console.error('PapaParse error', err);
+            statusInfo.textContent = 'Ошибка парсинга CSV';
+          }
+        });
+      } else {
+        const reader = new FileReader();
+        reader.onload = function(ev){
+          parseCSVText(ev.target.result);
+        };
+        reader.readAsText(f, 'utf-8');
+      }
+    });
+
+    showExampleBtn.addEventListener('click', ()=>{
+      alert('Пример колонок в CSV:\n\nstate,order_date,sales\nCalifornia,2020-01-05,123.45\nTexas,2020-02-12,234.00\n\nДопустимы имена колонок: state / State; order_date / OrderDate / \"order date\"; sales / Sales.');
+    });
+
+    // Парсинг текста
+    function parseCSVText(text){
+      if (window.Papa && Papa.parse) {
+        Papa.parse(text, {
+          header: true,
+          dynamicTyping: false,
+          skipEmptyLines: true,
+          complete: function(results){
+            rawData = results.data;
+            postProcessData();
+          },
+          error: function(err){
+            console.error('PapaParse error', err);
+            statusInfo.textContent = 'Ошибка парсинга CSV';
+          }
+        });
+      } else {
+        // Простой разбор CSV (очень грубый) — на случай отсутствия Papa
+        try {
+          const lines = text.split(/\r?\n/).filter(Boolean);
+          if (lines.length < 2) { statusInfo.textContent = 'CSV слишком маленький.'; return; }
+          const headers = lines[0].split(',');
+          const data = [];
+          for (let i=1;i<lines.length;i++){
+            const cols = lines[i].split(',');
+            const obj = {};
+            for (let j=0;j<headers.length;j++) obj[headers[j].trim()] = (cols[j]||'').trim();
+            data.push(obj);
+          }
+          rawData = data;
+          postProcessData();
+        } catch (e) {
+          console.error(e);
+          statusInfo.textContent = 'Не удалось распарсить CSV без PapaParse.';
+        }
+      }
+    }
+
+    // Обработка данных
+    function postProcessData(){
+      aggregatedByYear = {};
+      const yearsSet = new Set();
+      const normalized = [];
+
+      for (const row of rawData){
+        if (!row) continue;
+        let state = (row.state ?? row.State ?? row['State '] ?? row['state '] ?? '').toString().trim();
+        let dateStr = (row.order_date ?? row.OrderDate ?? row['order date'] ?? row['Order Date'] ?? '').toString().trim();
+        let salesRaw = (row.sales ?? row.Sales ?? '0').toString().trim();
+        if (!state) continue;
+        let year = null;
+        if (dateStr){
+          // Попробуем создать Date. Если не получилось — попробуем вытащить год парсингом.
+          const d = new Date(dateStr);
+          if (!isNaN(d)) year = d.getFullYear();
+          else {
+            const parts = dateStr.split(/[-\/\.]/).map(p=>p.trim());
+            // ищем часть с 4 цифрами
+            for (const p of parts){
+              const y = parseInt(p,10);
+              if (!isNaN(y) && y>1900 && y<2100) { year = y; break; }
+            }
+            // если первая часть — YYYY
+            if (year === null && parts.length>0){
+              const y0 = parseInt(parts[0],10);
+              if (!isNaN(y0) && y0>1900 && y0<2100) year = y0;
+            }
+          }
+        }
+        if (year === null) continue;
+        const salesNum = parseFloat(salesRaw.replace(/[^\d\.\-]/g,'')) || 0;
+        if (isNaN(salesNum)) continue;
+        normalized.push({ state, year, sales: salesNum });
+        yearsSet.add(year);
+      }
+
+      if (normalized.length === 0){
+        statusInfo.textContent = 'После парсинга не найдено валидных записей. Проверьте формат CSV (колонки state, order_date, sales).';
+        return;
+      }
+
+      // Группировать
+      const byYear = {};
+      for (const r of normalized){
+        byYear[r.year] = byYear[r.year] || {};
+        byYear[r.year][r.state] = byYear[r.year][r.state] || { state: r.state, orders: 0, sales: 0 };
+        byYear[r.year][r.state].orders += 1;
+        byYear[r.year][r.state].sales += r.sales;
+      }
+      for (const y of Object.keys(byYear)){
+        const arr = Object.values(byYear[y]);
+        arr.sort((a,b) => b.sales - a.sales);
+        aggregatedByYear[y] = arr;
+      }
+
+      // Заполнить селектор годов и выбрать последний
+      const years = Array.from(yearsSet).sort((a,b)=>a-b);
+      populateYearSelect(years);
+      statusInfo.textContent = `CSV загружен — обработано ${normalized.length} строк; годы: ${years.join(', ')}`;
+      if (years.length>0){
+        yearSelect.value = years[years.length-1];
+        renderForYear(parseInt(yearSelect.value,10));
+      } else {
+        showEmpty('Нет доступных годов в файле.');
+      }
+    }
+
+    function populateYearSelect(years){
+      yearSelect.innerHTML = '<option value="">— Год —</option>';
+      for (const y of years){
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        yearSelect.appendChild(opt);
+      }
+    }
+
+    yearSelect.addEventListener('change', () => {
+      const y = parseInt(yearSelect.value,10);
+      if (!isNaN(y)) renderForYear(y);
+    });
+
+    function renderForYear(year){
+      const data = aggregatedByYear[year];
+      if (!data || data.length===0){
+        showEmpty(`За ${year} год данных не найдено.`);
+        return;
+      }
+      emptyMessage.style.display = 'none';
+      tableArea.style.display = 'block';
+      reportBody.innerHTML = '';
+
+      const top = data.slice(0,10);
+      for (let i=0;i<top.length;i++){
+        const r = top[i];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="col-idx">${i+1}</td>
+          <td class="col-state">${escapeHtml(r.state)}</td>
+          <td class="col-count">${r.orders}</td>
+          <td class="col-sales">${usdFormatter.format(roundToTwo(r.sales))}</td>
+        `;
+        reportBody.appendChild(tr);
+      }
+
+      // Общая выручка за год (по всем штатам)
+      let total = 0;
+      for (const item of data) total += item.sales;
+      // Сумма Top10
+      let topSum = 0;
+      for (const item of top) topSum += item.sales;
+      const share = total === 0 ? 0 : (topSum / total) * 100;
+
+      totalRevenueEl.textContent = usdFormatter.format(roundToTwo(total));
+      top10RevenueEl.textContent = usdFormatter.format(roundToTwo(topSum));
+      top10ShareEl.textContent = `${roundToTwo(share)}%`;
+      shownCountEl.textContent = top.length;
+      statusInfo.textContent = `Показаны Top ${top.length} штатов за ${year}`;
+    }
+
+    function showEmpty(msg){
+      tableArea.style.display = 'none';
+      emptyMessage.style.display = 'block';
+      emptyText.textContent = msg || 'Нет данных для отображения.';
+    }
+
+    function roundToTwo(v){ return Math.round((v+Number.EPSILON)*100)/100; }
+    function escapeHtml(s){
+      return s.replace(/[&<>"']/g, function(m){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]);
+      });
+    }
+
+    // Полезная подсказка: если страница открыта через file:// и вы хотите автозагрузку — запустите локальный сервер, например:
+    // Python 3: `python -m http.server 8000` в папке с файлом, затем откройте http://localhost:8000/
+    // Но это не обязательно: выбор файла вручную работает без сервера.
+  </script>
+</body>
+</html>
