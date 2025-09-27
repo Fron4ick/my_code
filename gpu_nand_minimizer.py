@@ -73,7 +73,7 @@ class GPUNANDEvaluator:
             self.cpu_inputs = input_data
             self.cpu_outputs = output_data
     
-    def evaluate_batch(self, configs: List[Tuple], batch_size: int = 1000) -> List[bool]:
+    def evaluate_batch(self, configs: List[Tuple], batch_size: int = 100) -> List[bool]:
         """Evaluate a batch of circuit configurations."""
         if not configs:
             return []
@@ -175,13 +175,13 @@ class OptimizedNANDSearcher:
     def __init__(self, input_names: List[str], output_names: List[str], 
                  input_data: np.ndarray, output_data: np.ndarray,
                  max_nands: Optional[int] = None, verbose: bool = False,
-                 use_gpu: bool = True, batch_size: int = 1000, num_workers: int = None):
+                 use_gpu: bool = True, batch_size: int = 100, num_workers: int = None):
         self.input_names = input_names
         self.output_names = output_names
         self.num_inputs = len(input_names)
         self.num_outputs = len(output_names)
         self.num_rows = len(input_data)
-        self.max_nands = max_nands or 20
+        self.max_nands = max_nands or 30
         self.verbose = verbose
         self.batch_size = batch_size
         self.num_workers = num_workers or mp.cpu_count()
@@ -359,7 +359,7 @@ def main():
     parser.add_argument('--max-nands', type=int, default=20, help='Maximum number of NANDs to try')
     parser.add_argument('--verbose', action='store_true', help='Verbose output')
     parser.add_argument('--use-gpu', action='store_true', default=True, help='Use GPU acceleration')
-    parser.add_argument('--batch-size', type=int, default=1000, help='Batch size for GPU evaluation')
+    parser.add_argument('--batch-size', type=int, default=100, help='Batch size for GPU evaluation (smaller values reduce CPU memory usage)')
     parser.add_argument('--num-workers', type=int, help='Number of worker processes (default: CPU count)')
     
     args = parser.parse_args()
@@ -387,7 +387,7 @@ def main():
         args.use_gpu = False
     
     print(f"Using {'GPU' if args.use_gpu else 'CPU'} acceleration")
-    print(f"Batch size: {args.batch_size}")
+    print(f"Batch size: {args.batch_size} (reduced to minimize CPU memory usage)")
     
     # Search for solution
     searcher = OptimizedNANDSearcher(
