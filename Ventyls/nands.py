@@ -95,3 +95,12 @@ for a in (0, 1):
             # Теперь (a AND b) AND c
             abc = And(('ab', ab.evaluate()), f'c-{c}')
             print(f"a={a}, b={b}, c={c} => {abc.evaluate()}")
+
+print("\nTEST: HDL для функции a and b and c")
+
+ab = And("a-1", "b-1")
+print("// HDL для промежуточного узла ab = a AND b")
+print(ab.hdl(out_name="ab"))
+abc = And(('ab', ab.evaluate()), "c-1")
+print("\n// HDL для итогового узла abc = ab AND c")
+print(abc.hdl(out_name="abc"))
