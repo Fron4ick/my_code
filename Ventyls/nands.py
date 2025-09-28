@@ -83,3 +83,15 @@ print(Not('a-0').hdl())
 
 print("\nПример HDL для And(a,b):")
 print(And('a-1', 'b-1').hdl())
+
+
+print("\nTEST: функция a and b and c")
+
+for a in (0, 1):
+    for b in (0, 1):
+        for c in (0, 1):
+            # Сначала считаем a AND b
+            ab = And(f'a-{a}', f'b-{b}')
+            # Теперь (a AND b) AND c
+            abc = And(('ab', ab.evaluate()), f'c-{c}')
+            print(f"a={a}, b={b}, c={c} => {abc.evaluate()}")
