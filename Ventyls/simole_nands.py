@@ -22,7 +22,7 @@ class Not:
         NAND(a,a) = NOT a — поэтому достаточно одной строки.
         """
         out = out_name or f'not_{self.name}'
-        return f'    Nand(a = {self.name}, b = {self.name}, out = {out})'
+        return f'    Nand(a = {self.name}, b = {self.name}, out = {out});'
 
     def __repr__(self):
         # При печати экземпляра покажем результат evaluate() в виде 0/1
@@ -57,15 +57,15 @@ class And:
         """
         tmp = f'tmp_{self.a_name}_{self.b_name}'
         out = out_name or f'out_{self.a_name}_{self.b_name}'
-        return (f'    Nand(a = {self.a_name}, b = {self.b_name}, out = {tmp})\n'
-                f'    Nand(a = {tmp}, b = {tmp}, out = {out})')
+        return (f'    Nand(a = {self.a_name}, b = {self.b_name}, out = {tmp});\n'
+                f'    Nand(a = {tmp}, b = {tmp}, out = {out});')
 
     def __repr__(self):
         return str(self.evaluate())
 
 
-class And:
-    """AND-gate реализован через NAND: out = NAND(NAND(a,b), NAND(a,b))"""
+class Or:
+
     def __init__(self, token_a, token_b):
         # Парсим оба входа (поддерживаем 'a-0' или ('a',0))
         def parse(t):
@@ -81,19 +81,27 @@ class And:
         self.b_name, self.b_val = parse(token_b)
 
     def evaluate(self):
-        """Возвращает 0 или 1 — логическое AND двух входов."""
-        return int(self.a_val and self.b_val)
+        """Возвращает 0 или 1 — логическое OR двух входов."""
+        return int(self.a_val or self.b_val)
 
     def hdl(self, out_name: str = None):
-        """
+        """0
         Возвращает эквивалент на NAND:
+	    Nand (a=a, b=a, out=out1);
+	    Nand (a=b, b=b, out=out2);
+	    Nand (a=out1, b=out2, out=out);
+
         tmp = Nand(a, b)
+        tmp
         out = Nand(tmp, tmp)
         """
         tmp = f'tmp_{self.a_name}_{self.b_name}'
         out = out_name or f'out_{self.a_name}_{self.b_name}'
-        return (f'    Nand(a = {self.a_name}, b = {self.b_name}, out = {tmp})\n'
-                f'    Nand(a = {tmp}, b = {tmp}, out = {out})')
+        return (f'    Nand (a=a, b=a, out=out1);\n'
+                f'    Nand (a=b, b=b, out=out2);\n'
+                f'    Nand (a=out1, b=out2, out=out);\n')
+        return (f'    Nand(a = {self.a_name}, b = {self.b_nameNand(a = {tmp}, b = {tmp}, out = {out});}, out = {tmp});\n'
+                f'    Nand(a = {tmp}, b = {tmp}, out = {out});')
 
     def __repr__(self):
         return str(self.evaluate())
