@@ -398,6 +398,143 @@ class HDLOptimizer:
         
         return optimized_code, stats
 
+# --- Добавляем 16-битный мультиплексор (если его ещё нет в файле) ---
+Mux16 = generate_multibit_class(Mux, 16, "Mux16")
+
+class LU:
+    """
+    Logic Unit (16-bit)
+    IN a[16], b[16], sel[2], negateA, negateB
+    OUT out[16]
+    """
+
+    def __init__(self, token_a, token_b, token_sel, token_negA, token_negB):
+        # Парсер входных токенов (поддерживает 'name-1', ('name',1) или ['name', [..bits..]])
+        def parse_bus(t, expected_bits=16):
+            if isinstance(t, list) and len(t) == 2 and isinstance(t[1], list):
+                name = str(t[0])
+                vals = list(map(int, t[1]))
+                # если длина меньше — дополним нулями, если больше — усечём
+                if len(vals) < expected_bits:
+                    vals = vals + [0] * (expected_bits - len(vals))
+                else:
+                    vals = vals[:expected_bits]
+                return name, vals
+            elif isinstance(t, tuple) or isinstance(t, list):
+                # ('name', value) — для шин не подходит, но примем однобитное повторение
+                name = str(t[0])
+                val = int(t[1])
+                return name, [val] * expected_bits
+            elif isinstance(t, str) and '-' in t:
+                name, val = t.split('-', 1)
+                return name, [int(val)] * expected_bits
+            else:
+                raise ValueError("Для шины ожидается ['name', [bits..]] или ('name', val) или 'name-val'")
+
+        def parse_sel(t):
+            # sel должен быть 2-битным: ['sel',[s0,s1]] или ('sel', [s0,s1]) или ('sel', val) (в таком случае val повторится)
+            if isinstance(t, list) and len(t) == 2 and isinstance(t[1], list):
+                name = str(t[0])
+                vals = list(map(int, t[1]))
+                if len(vals) < 2:
+                    vals = vals + [0] * (2 - len(vals))
+                else:
+                    vals = vals[:2]
+                return name, vals
+            elif isinstance(t, tuple) or isinstance(t, list):
+                name = str(t[0])
+                val = t[1]
+                if isinstance(val, list):
+                    vals = list(map(int, val))
+                    if len(vals) < 2:
+                        vals = vals + [0] * (2 - len(vals))
+                    else:
+                        vals = vals[:2]
+                else:
+                    vals = [int(val), 0]
+                return name, vals
+            elif isinstance(t, str) and '-' in t:
+                name, val = t.split('-', 1)
+                v = int(val)
+                return name, [v, 0]
+            else:
+                raise ValueError("sel ожидается как ['sel',[bit0,bit1]] или ('sel', [..]) или 'sel-val'")
+
+        def parse_bit_token(t):
+            # Для negateA/negateB: 'name-0' / ('name',0) / просто 0/1
+            if isinstance(t, str) and '-' in t:
+                name, val = t.split('-', 1)
+                return str(name), int(val)
+            elif isinstance(t, (tuple, list)) and len(t) == 2:
+                return str(t[0]), int(t[1])
+            elif isinstance(t, int):
+                return None, int(t)
+            else:
+                raise ValueError("negateA/negateB ожидаются как 'name-val' или ('name', val) или int")
+
+        # Сохраняем разобранные значения
+        self.a_name, self.a_bits = parse_bus(token_a, expected_bits=16)
+        self.b_name, self.b_bits = parse_bus(token_b, expected_bits=16)
+        self.sel_name, self.sel_bits = parse_sel(token_sel)   # [bit0, bit1]
+        self.negA_name, self.negA_val = parse_bit_token(token_negA)
+        self.negB_name, self.negB_val = parse_bit_token(token_negB)
+
+    def evaluate(self):
+        # вычисляем предварительно инверсии
+        notA = [1 - b for b in self.a_bits]
+        notB = [1 - b for b in self.b_bits]
+
+        # выбираем A и B с учётом negateA/negateB
+        A = [ (notA[i] if self.negA_val else self.a_bits[i]) for i in range(16) ]
+        B = [ (notB[i] if self.negB_val else self.b_bits[i]) for i in range(16) ]
+
+        # логические операции
+        and_res = [ A[i] & B[i] for i in range(16) ]
+        nand_res = [ 1 - and_res[i] for i in range(16) ]
+        or_res = [ A[i] | B[i] for i in range(16) ]
+        nor_res = [ 1 - or_res[i] for i in range(16) ]
+
+        s0, s1 = int(self.sel_bits[0]), int(self.sel_bits[1])
+        # сначала выбираем между And/Or по s1, затем между (And/Or) и (Nand/Nor) по s0
+        first_pair = [ (or_res[i] if s1 else and_res[i]) for i in range(16) ]
+        second_pair = [ (nor_res[i] if s1 else nand_res[i]) for i in range(16) ]
+        out = [ (second_pair[i] if s0 else first_pair[i]) for i in range(16) ]
+
+        return out
+
+    def hdl(self, out_name: str = "out"):
+        # Генерируем HDL-код CHIP LU {...}
+        lines = []
+
+        # 1) Инвертированные шины
+        # создаём имена промежуточных шин
+        lines.append(f"    Not16(in = {self.a_name}, out = nota);")
+        lines.append(f"    Not16(in = {self.b_name}, out = notb);")
+
+        # 2) Выбор A и B с учётом negate
+        # если negateA/negateB передаются как имя сигнала, используем его; иначе используем значения - но в HDL мы ссылаемся на входы negateA/negateB
+        lines.append(f"    Mux16(a = {self.a_name}, b = nota, sel = negateA, out = a_used);")
+        lines.append(f"    Mux16(a = {self.b_name}, b = notb, sel = negateB, out = b_used);")
+
+        # 3) Основные операции
+        lines.append(f"    And16(a = a_used, b = b_used, out = andRes);")
+        lines.append(f"    Not16(in = andRes, out = nandRes);   // NAND = NOT(AND)")
+
+        lines.append(f"    Or16(a = a_used, b = b_used, out = orRes);")
+        lines.append(f"    Not16(in = orRes, out = norRes);     // NOR = NOT(OR)")
+
+        # 4) Выбор по sel (двухуровневый Mux16)
+        # используем sel[1] как внутренний селектор между And/Or и между Nand/Nor,
+        # затем sel[0] выбирает между первыми и вторыми парами
+        lines.append(f"    Mux16(a = andRes, b = orRes, sel = sel[1], out = firstPair);")
+        lines.append(f"    Mux16(a = nandRes, b = norRes, sel = sel[1], out = secondPair);")
+        lines.append(f"    Mux16(a = firstPair, b = secondPair, sel = sel[0], out = {out_name});")
+
+        return '\n'.join(lines)
+
+    def __repr__(self):
+        return str(self.evaluate())
+
 
 # Пример использования
 if __name__ == "__main__":
@@ -432,7 +569,13 @@ if __name__ == "__main__":
     
     or16 = Or16Way(['in', [0]*16])
     print("Or16Way (все нули) результат:", or16.evaluate())
-
+    print(' - ')
+    #--------------------------------------------
+    # Пример вызова (вставь в конец simole_nands.py или в тестовую секцию)
+    lu = LU(['a', [0]*16], ['b', [1]*16], ['sel', [0,1]], ('negateA', 0), ('negateB', 0))
+    print("evaluate:", lu.evaluate())   # список из 16 бит
+    print(' - ')
+    print(lu.hdl())
 
 
 
