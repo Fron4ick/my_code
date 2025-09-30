@@ -1,7 +1,8 @@
+from itertools import product
+from collections import defaultdict
+
 class Not:
-    """NOT-gate wrapper. Конструктор принимает 'name-value' (пример: 'a-0')."""
     def __init__(self, token):
-        # Поддерживаем строку 'a-0' или кортеж ('a', 0)
         if isinstance(token, str) and '-' in token:
             name, val = token.split('-', 1)
             self.name = name
@@ -13,26 +14,18 @@ class Not:
             raise ValueError("Ожидается 'name-value' или ('name', value)")
 
     def evaluate(self):
-        """Возвращает 0 или 1 — логическое отрицание входа."""
         return int(not self.value)
 
     def hdl(self, out_name: str = None):
-        """
-        Возвращает строку с эквивалентом на NAND.
-        NAND(a,a) = NOT a — поэтому достаточно одной строки.
-        """
-        out = out_name or f'not_{self.name}'
+        out = out_name or f'outX{self.name}'
         return f'    Nand(a = {self.name}, b = {self.name}, out = {out});'
 
     def __repr__(self):
-        # При печати экземпляра покажем результат evaluate() в виде 0/1
         return str(self.evaluate())
 
 
 class And:
-    """AND-gate реализован через NAND: out = NAND(NAND(a,b), NAND(a,b))"""
     def __init__(self, token_a, token_b):
-        # Парсим оба входа (поддерживаем 'a-0' или ('a',0))
         def parse(t):
             if isinstance(t, str) and '-' in t:
                 name, val = t.split('-', 1)
@@ -46,17 +39,11 @@ class And:
         self.b_name, self.b_val = parse(token_b)
 
     def evaluate(self):
-        """Возвращает 0 или 1 — логическое AND двух входов."""
         return int(self.a_val and self.b_val)
 
     def hdl(self, out_name: str = None):
-        """
-        Возвращает эквивалент на NAND:
-        tmp = Nand(a, b)
-        out = Nand(tmp, tmp)
-        """
-        tmp = f'tmp_{self.a_name}_{self.b_name}'
-        out = out_name or f'out_{self.a_name}_{self.b_name}'
+        tmp = f'tmpX{self.a_name}X{self.b_name}'
+        out = out_name or f'outX{self.a_name}X{self.b_name}'
         return (f'    Nand(a = {self.a_name}, b = {self.b_name}, out = {tmp});\n'
                 f'    Nand(a = {tmp}, b = {tmp}, out = {out});')
 
@@ -65,9 +52,7 @@ class And:
 
 
 class Or:
-
     def __init__(self, token_a, token_b):
-        # Парсим оба входа (поддерживаем 'a-0' или ('a',0))
         def parse(t):
             if isinstance(t, str) and '-' in t:
                 name, val = t.split('-', 1)
@@ -81,77 +66,369 @@ class Or:
         self.b_name, self.b_val = parse(token_b)
 
     def evaluate(self):
-        """Возвращает 0 или 1 — логическое OR двух входов."""
         return int(self.a_val or self.b_val)
 
     def hdl(self, out_name: str = None):
-        """0
-        Возвращает эквивалент на NAND:
-	    Nand (a=a, b=a, out=out1);
-	    Nand (a=b, b=b, out=out2);
-	    Nand (a=out1, b=out2, out=out);
-
-        tmp = Nand(a, b)
-        tmp
-        out = Nand(tmp, tmp)
-        """
-        tmp = f'tmp_{self.a_name}_{self.b_name}'
-        out = out_name or f'out_{self.a_name}_{self.b_name}'
-        return (f'    Nand (a=a, b=a, out=out1);\n'
-                f'    Nand (a=b, b=b, out=out2);\n'
-                f'    Nand (a=out1, b=out2, out=out);\n')
-        return (f'    Nand(a = {self.a_name}, b = {self.b_nameNand(a = {tmp}, b = {tmp}, out = {out});}, out = {tmp});\n'
-                f'    Nand(a = {tmp}, b = {tmp}, out = {out});')
+        tmp1 = f'tmpX{self.a_name}X{self.a_name}'
+        tmp2 = f'tmpX{self.b_name}X{self.b_name}'
+        out = out_name or f'outX{self.a_name}X{self.b_name}'
+        return (f'    Nand(a = {self.a_name}, b = {self.a_name}, out = {tmp1});\n'
+                f'    Nand(a = {self.b_name}, b = {self.b_name}, out = {tmp2});\n'
+                f'    Nand(a = {tmp1}, b = {tmp2}, out = {out});')
 
     def __repr__(self):
         return str(self.evaluate())
 
 
+class Xor:
+    def __init__(self, token_a, token_b):
+        def parse(t):
+            if isinstance(t, str) and '-' in t:
+                name, val = t.split('-', 1)
+                return name, bool(int(val))
+            elif isinstance(t, (tuple, list)) and len(t) == 2:
+                return str(t[0]), bool(int(t[1]))
+            else:
+                raise ValueError("Ожидается 'name-value' или ('name', value)")
+
+        self.a_name, self.a_val = parse(token_a)
+        self.b_name, self.b_val = parse(token_b)
+
+    def evaluate(self):
+        return int(self.a_val != self.b_val)
+
+    def hdl(self, out_name: str = None):
+        tmp1 = f'tmpX{self.a_name}X{self.b_name}'
+        tmp2 = f'tmpX{self.a_name}X{tmp1}'
+        tmp3 = f'tmpX{self.b_name}X{tmp1}'
+        out = out_name or f'outX{tmp2}X{tmp3}'
+        return (f'    Nand(a = {self.a_name}, b = {self.b_name}, out = {tmp1});\n'
+                f'    Nand(a = {self.a_name}, b = {tmp1}, out = {tmp2});\n'
+                f'    Nand(a = {self.b_name}, b = {tmp1}, out = {tmp3});\n'
+                f'    Nand(a = {tmp2}, b = {tmp3}, out = {out});')
+
+    def __repr__(self):
+        return str(self.evaluate())
 
 
+class Mux:
+    def __init__(self, token_a, token_b, token_sel):
+        def parse(t):
+            if isinstance(t, str) and '-' in t:
+                name, val = t.split('-', 1)
+                return name, bool(int(val))
+            elif isinstance(t, (tuple, list)) and len(t) == 2:
+                return str(t[0]), bool(int(t[1]))
+            else:
+                raise ValueError("Ожидается 'name-value' или ('name', value)")
+
+        self.a_name, self.a_val = parse(token_a)
+        self.b_name, self.b_val = parse(token_b)
+        self.sel_name, self.sel_val = parse(token_sel)
+
+    def evaluate(self):
+        return int(self.b_val if self.sel_val else self.a_val)
+
+    def hdl(self, out_name: str = None):
+        q = f'q{self.a_name}{self.b_name}{self.sel_name}'
+        w = f'w{self.a_name}{self.b_name}{self.sel_name}'
+        e = f'e{self.a_name}{self.b_name}{self.sel_name}'
+        out = out_name or f'outMux{self.a_name}{self.b_name}{self.sel_name}'
+        return (f'    Nand(a = {self.a_name}, b = {self.sel_name}, out = {q});\n'
+                f'    Nand(a = {q}, b = {self.a_name}, out = {w});\n'
+                f'    Nand(a = {self.b_name}, b = {self.sel_name}, out = {e});\n'
+                f'    Nand(a = {w}, b = {e}, out = {out});')
+
+    def __repr__(self):
+        return str(self.evaluate())
 
 
+class DMux:
+    def __init__(self, token_in, token_sel):
+        def parse(t):
+            if isinstance(t, str) and '-' in t:
+                name, val = t.split('-', 1)
+                return name, bool(int(val))
+            elif isinstance(t, (tuple, list)) and len(t) == 2:
+                return str(t[0]), bool(int(t[1]))
+            else:
+                raise ValueError("Ожидается 'name-value' или ('name', value)")
+
+        self.in_name, self.in_val = parse(token_in)
+        self.sel_name, self.sel_val = parse(token_sel)
+
+    def evaluate(self):
+        if self.sel_val:
+            return (0, int(self.in_val))
+        else:
+            return (int(self.in_val), 0)
+
+    def hdl(self, out_a_name: str = None, out_b_name: str = None):
+        out1 = f'out1_{self.in_name}{self.sel_name}'
+        out2 = f'out2_{self.in_name}{self.sel_name}'
+        out_a = out_a_name or f'a{self.in_name}{self.sel_name}'
+        out_b = out_b_name or f'b{self.in_name}{self.sel_name}'
+        return (f'    Nand(a = {self.in_name}, b = {self.sel_name}, out = {out1});\n'
+                f'    Nand(a = {self.in_name}, b = {out1}, out = {out2});\n'
+                f'    Nand(a = {out2}, b = {out2}, out = {out_a});\n'
+                f'    Nand(a = {out1}, b = {out1}, out = {out_b});')
+
+    def __repr__(self):
+        a, b = self.evaluate()
+        return f'(a={a}, b={b})'
 
 
+# Многобитные чипы генерируются циклично
+def generate_multibit_class(gate_class, bit_width, class_name):
+    """Генерирует класс для многобитных вентилей"""
+    
+    class MultibitGate:
+        def __init__(self, *args):
+            # Парсим входы - могут быть списками или отдельными значениями
+            self.gates = []
+            self.bit_width = bit_width
+            self.class_name = class_name
+            
+            # Для каждого бита создаем отдельный вентиль
+            for i in range(bit_width):
+                bit_args = []
+                for arg in args:
+                    if isinstance(arg, list):
+                        bit_args.append((f"{arg[0]}[{i}]", arg[1][i] if i < len(arg[1]) else 0))
+                    else:
+                        bit_args.append(arg)
+                self.gates.append(gate_class(*bit_args))
+        
+        def evaluate(self):
+            return [gate.evaluate() for gate in self.gates]
+        
+        def hdl(self, out_name: str = None):
+            lines = []
+            for i, gate in enumerate(self.gates):
+                out = f"{out_name}[{i}]" if out_name else f"out[{i}]"
+                lines.append(gate.hdl(out))
+            return '\n'.join(lines)
+        
+        def __repr__(self):
+            return str(self.evaluate())
+    
+    MultibitGate.__name__ = class_name
+    return MultibitGate
 
-# --- Тесты, которые печатают то, что ты хотел ---
-print("NOT-tests (ожидается: (0,1) (0,1) (1,0) (1,0) на отдельных строках):")
-for a in (0, 1):
-    for b in (0, 1):
-        n1 = Not(f'a-{a}')
-        print(a, n1)
 
-print("\nAND-tests (ожидается: (0,0,0) (0,1,0) (1,0,0) (1,1,1) на отдельных строках):")
-for a in (0, 1):
-    for b in (0, 1):
-        n2 = And(f'a-{a}', f'b-{b}')
-        print(a, b, n2)
-
-# Примеры генерации HDL:
-print("\nПример HDL для Not(a):")
-print(Not('a-0').hdl())
-
-print("\nПример HDL для And(a,b):")
-print(And('a-1', 'b-1').hdl())
+# Создаем 16-битные версии
+Not16 = generate_multibit_class(Not, 16, "Not16")
+And16 = generate_multibit_class(And, 16, "And16")
+Or16 = generate_multibit_class(Or, 16, "Or16")
 
 
-print("\nTEST: функция a and b and c")
+class Or8Way:
+    """8-way Or gate"""
+    def __init__(self, inputs):
+        # inputs = ['in', [v0,v1,v2,v3,v4,v5,v6,v7]]
+        self.name = inputs[0]
+        self.values = inputs[1]
+    
+    def evaluate(self):
+        return int(any(self.values))
+    
+    def hdl(self, out_name: str = None):
+        out = out_name or "out"
+        lines = []
+        # Дерево OR вентилей
+        lines.append(f"    Or(a = {self.name}[0], b = {self.name}[1], out = out1);")
+        lines.append(f"    Or(a = {self.name}[2], b = {self.name}[3], out = out2);")
+        lines.append(f"    Or(a = {self.name}[4], b = {self.name}[5], out = out3);")
+        lines.append(f"    Or(a = {self.name}[6], b = {self.name}[7], out = out4);")
+        lines.append(f"    Or(a = out1, b = out2, out = out5);")
+        lines.append(f"    Or(a = out3, b = out4, out = out6);")
+        lines.append(f"    Or(a = out5, b = out6, out = {out});")
+        return '\n'.join(lines)
 
-for a in (0, 1):
-    for b in (0, 1):
-        for c in (0, 1):
-            # Сначала считаем a AND b
-            ab = And(f'a-{a}', f'b-{b}')
-            # Теперь (a AND b) AND c
-            abc = And(('ab', ab.evaluate()), f'c-{c}')
-            print(f"a={a}, b={b}, c={c} => {abc.evaluate()}")
 
-print("\nTEST: HDL для функции a and b and c")
+class Or16Way:
+    """16-way Or gate"""
+    def __init__(self, inputs):
+        self.name = inputs[0]
+        self.values = inputs[1]
+    
+    def evaluate(self):
+        return int(any(self.values))
+    
+    def hdl(self, out_name: str = None):
+        out = out_name or "out"
+        lines = []
+        # Дерево OR вентилей (4 уровня)
+        for i in range(0, 16, 2):
+            lines.append(f"    Or(a = {self.name}[{i}], b = {self.name}[{i+1}], out = out{i//2+1});")
+        
+        for i in range(1, 9, 2):
+            lines.append(f"    Or(a = out{i}, b = out{i+1}, out = out{i//2+9});")
+        
+        lines.append(f"    Or(a = out9, b = out10, out = out13);")
+        lines.append(f"    Or(a = out11, b = out12, out = out14);")
+        lines.append(f"    Or(a = out13, b = out14, out = {out});")
+        return '\n'.join(lines)
 
 
-ab = And("a-1", "b-1")
-print("// HDL для промежуточного узла ab = a AND b")
-print(ab.hdl(out_name="ab"))
-abc = And(('ab', ab.evaluate()), "c-1")
-print("\n// HDL для итогового узла abc = ab AND c")
-print(abc.hdl(out_name="abc"))
+class HDLOptimizer:
+    """Оптимизатор HDL кода - удаляет дублирующиеся NAND вентили"""
+    
+    def __init__(self, hdl_code):
+        self.hdl_code = hdl_code
+        self.nand_gates = []  # Список всех NAND вентилей
+        self.truth_tables = {}  # Таблицы истинности для каждого NAND
+        self.input_vars = set()  # Все входные переменные
+        
+    def parse_nands(self):
+        """Извлекает все NAND вентили из HDL кода"""
+        lines = self.hdl_code.split('\n')
+        for line in lines:
+            line = line.strip()
+            if line.startswith('Nand'):
+                # Парсим: Nand(a = var1, b = var2, out = var3);
+                parts = line.replace('Nand(', '').replace(');', '').replace(' ', '').split(',')
+                nand_info = {}
+                for part in parts:
+                    key, val = part.split('=')
+                    nand_info[key] = val
+                
+                self.nand_gates.append(nand_info)
+                # Собираем входные переменные
+                a_var = nand_info['a']
+                b_var = nand_info['b']
+                # Если переменная не содержит '[' и не начинается с tmp/out - это входная
+                if '[' not in a_var and not a_var.startswith(('tmp', 'out', 'q', 'w', 'e')):
+                    self.input_vars.add(a_var)
+                if '[' not in b_var and not b_var.startswith(('tmp', 'out', 'q', 'w', 'e')):
+                    self.input_vars.add(b_var)
+    
+    def build_truth_table(self, nand_idx):
+        """Строит таблицу истинности для конкретного NAND вентиля"""
+        # Получаем все комбинации входных значений
+        input_list = sorted(list(self.input_vars))
+        truth_table = []
+        
+        for combo in product([0, 1], repeat=len(input_list)):
+            values = dict(zip(input_list, combo))
+            # Симулируем схему
+            result = self.simulate_circuit(values, nand_idx)
+            truth_table.append((combo, result))
+        
+        return tuple(truth_table)
+    
+    def simulate_circuit(self, input_values, target_nand_idx):
+        """Симулирует схему до целевого NAND вентиля"""
+        computed = dict(input_values)
+        
+        for idx in range(target_nand_idx + 1):
+            nand = self.nand_gates[idx]
+            a_val = computed.get(nand['a'], 0)
+            b_val = computed.get(nand['b'], 0)
+            # NAND: NOT(a AND b)
+            result = int(not (a_val and b_val))
+            computed[nand['out']] = result
+        
+        return computed[self.nand_gates[target_nand_idx]['out']]
+    
+    def find_duplicates(self):
+        """Находит NAND вентили с одинаковыми таблицами истинности"""
+        self.parse_nands()
+        
+        if not self.input_vars:
+            return {}, {}
+        
+        # Строим таблицы истинности
+        for idx in range(len(self.nand_gates)):
+            tt = self.build_truth_table(idx)
+            self.truth_tables[idx] = tt
+        
+        # Группируем по таблицам истинности
+        tt_groups = defaultdict(list)
+        for idx, tt in self.truth_tables.items():
+            tt_groups[tt].append(idx)
+        
+        # Находим дубликаты
+        duplicates = {}
+        replacements = {}
+        
+        for tt, indices in tt_groups.items():
+            if len(indices) > 1:
+                # Первый (младший) остается, остальные удаляются
+                keeper = indices[0]
+                for dup_idx in indices[1:]:
+                    duplicates[dup_idx] = keeper
+                    # Замена: выход дубликата -> выход keeper
+                    replacements[self.nand_gates[dup_idx]['out']] = self.nand_gates[keeper]['out']
+        
+        return duplicates, replacements
+    
+    def optimize(self):
+        """Оптимизирует HDL код"""
+        duplicates, replacements = self.find_duplicates()
+        
+        if not duplicates:
+            return self.hdl_code, "Оптимизация не требуется - дубликаты не найдены"
+        
+        # Удаляем дублирующиеся NAND и заменяем ссылки
+        lines = self.hdl_code.split('\n')
+        new_lines = []
+        removed_count = 0
+        
+        for idx, line in enumerate(lines):
+            line_stripped = line.strip()
+            if line_stripped.startswith('Nand'):
+                # Определяем индекс этого NAND
+                current_nand_idx = sum(1 for l in lines[:idx] if l.strip().startswith('Nand'))
+                
+                if current_nand_idx in duplicates:
+                    removed_count += 1
+                    continue  # Пропускаем дубликат
+            
+            # Заменяем ссылки на удаленные выходы
+            modified_line = line
+            for old_var, new_var in replacements.items():
+                modified_line = modified_line.replace(f'= {old_var}', f'= {new_var}')
+                modified_line = modified_line.replace(f'={old_var}', f'={new_var}')
+            
+            new_lines.append(modified_line)
+        
+        optimized_code = '\n'.join(new_lines)
+        stats = f"Удалено {removed_count} дублирующихся NAND вентилей"
+        
+        return optimized_code, stats
+
+
+# Пример использования
+if __name__ == "__main__":
+    print("=== Пример работы оптимизатора ===\n")
+    
+    # Создаем простую схему Mux
+    mux = Mux('a-1', 'b-0', 'sel-1')
+    hdl_code = mux.hdl('out')
+    
+    print("Исходный HDL код:")
+    print(hdl_code)
+    print(f"\nРезультат: {mux.evaluate()}\n")
+    
+    # Оптимизируем
+    optimizer = HDLOptimizer(hdl_code)
+    optimized, stats = optimizer.optimize()
+    
+    print("=" * 50)
+    print("Оптимизированный HDL код:")
+    print(optimized)
+    print(f"\n{stats}\n")
+    
+    # Тестируем многобитные вентили
+    print("=" * 50)
+    print("=== Тест многобитных вентилей ===\n")
+    
+    not16 = Not16(['a', [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]])
+    print("Not16 результат:", not16.evaluate())
+    
+    or8 = Or8Way(['in', [0,0,0,1,0,0,0,0]])
+    print("Or8Way результат:", or8.evaluate())
+    
+    or16 = Or16Way(['in', [0]*16])
+    print("Or16Way (все нули) результат:", or16.evaluate())
