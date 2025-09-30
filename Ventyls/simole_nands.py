@@ -432,3 +432,12 @@ if __name__ == "__main__":
     
     or16 = Or16Way(['in', [0]*16])
     print("Or16Way (все нули) результат:", or16.evaluate())
+
+
+
+
+
+
+
+
+print(input())
