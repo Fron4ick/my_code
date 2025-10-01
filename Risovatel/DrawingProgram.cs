@@ -4,67 +4,67 @@ using RefactorMe.Common;
 
 namespace RefactorMe
 {
-    class Painter
+    static class CanvasPainter
     {
-        static float x, y;
-        static IGraphics graphics;
+        private static float _x,_y;
+        private static IGraphics _g;
 
-        public static void Initialize(IGraphics newGraphics)
+        public static void Initialize(IGraphics graphics)
         {
-            graphics = newGraphics;
-            //grafika.SmoothingMode = SmoothingMode.None;
-            graphics.Clear(Colors.Black);
+            _g = graphics ?? throw new ArgumentNullException(nameof(graphics));
+            _g.Clear(Colors.Black);
         }
 
-        public static void Set_position(float x0, float y0)
-        { x = x0; y = y0; }
+        public static void SetPosition(float x,float y){ _x = x; _y = y; }
 
-        public static void MakeIt(Pen pen, double dlina, double angle)
+        public static void DrawStep(Pen pen,double len,double ang)
         {
-            //Делает шаг длиной dlina в направлении ugol и рисует пройденную траекторию
-            var x1 = (float)(x + dlina * Math.Cos(angle));
-            var y1 = (float)(y + dlina * Math.Sin(angle));
-            graphics.DrawLine(pen, Painter.x, Painter.y, x1, y1);
-            Painter.x = x1;
-            Painter.y = y1;
+            var nx = (float)(_x + len * Math.Cos(ang));
+            var ny = (float)(_y + len * Math.Sin(ang));
+            _g.DrawLine(pen, _x, _y, nx, ny);
+            _x = nx; _y = ny;
         }
 
-        public static void Change(double len, double angle)
+        public static void MoveOnly(double len,double ang)
         {
-            x = (float)(x + len * Math.Cos(angle));
-            y = (float)(y + len * Math.Sin(angle));
+            _x = (float)(_x + len * Math.Cos(ang));
+            _y = (float)(_y + len * Math.Sin(ang));
         }
     }
 
     public class ImpossibleSquare
     {
-        public static void Draw(int width, int height, double angleOfRotation, IGraphics graphics)
+        private const double SideScale = 0.375, StripScale = 0.04;
+        private static readonly double Sqrt2 = Math.Sqrt(2);
+        private const double A45 = Math.PI / 4, A90 = Math.PI / 2;
+
+        public static void Draw(int width,int height,double rotation,IGraphics graphics)
         {
-            Painter.Initialize(graphics);
+            CanvasPainter.Initialize(graphics);
 
-            var sz = Math.Min(width, height);
-            var diag = Math.Sqrt(2) * (sz * 0.375 + sz * 0.04) / 2;
-            var x0 = (float)(diag * Math.Cos(Math.PI / 4 + Math.PI)) + width / 2f;
-            var y0 = (float)(diag * Math.Sin(Math.PI / 4 + Math.PI)) + height / 2f;
-            Painter.Set_position(x0, y0);
+            var size = Math.Min(width, height);
+            var diag = Sqrt2 * (size * SideScale + size * StripScale) / 2;
 
-            double[] startAngles = { 0, -Math.PI / 2, Math.PI, Math.PI / 2 };
+            var sx = (float)(diag * Math.Cos(A45 + Math.PI)) + width / 2f;
+            var sy = (float)(diag * Math.Sin(A45 + Math.PI)) + height / 2f;
+            CanvasPainter.SetPosition(sx, sy);
 
-            foreach (var baseAngle in startAngles)
-            {
-                DrawSide(sz, baseAngle);
-            }
+            var angles = new[] { 0.0, -A90, Math.PI, A90 };
+            var pen = new Pen(Brushes.Yellow);
+
+            foreach (var a in angles)
+                DrawSide(size, a, pen);
         }
 
-        private static void DrawSide(double sz, double angle)
+        private static void DrawSide(double size,double angle,Pen pen)
         {
-            Painter.MakeIt(new Pen(Brushes.Yellow), sz * 0.375, angle);
-            Painter.MakeIt(new Pen(Brushes.Yellow), sz * 0.04 * Math.Sqrt(2), angle + Math.PI / 4);
-            Painter.MakeIt(new Pen(Brushes.Yellow), sz * 0.375, angle + Math.PI);
-            Painter.MakeIt(new Pen(Brushes.Yellow), sz * 0.375 - sz * 0.04, angle + Math.PI / 2);
+            CanvasPainter.DrawStep(pen, size * SideScale, angle);
+            CanvasPainter.DrawStep(pen, size * StripScale * Sqrt2, angle + A45);
+            CanvasPainter.DrawStep(pen, size * SideScale, angle + Math.PI);
+            CanvasPainter.DrawStep(pen, size * SideScale - size * StripScale, angle + A90);
 
-            Painter.Change(sz * 0.04, angle - Math.PI);
-            Painter.Change(sz * 0.04 * Math.Sqrt(2), angle + 3 * Math.PI / 4);
+            CanvasPainter.MoveOnly(size * StripScale, angle - Math.PI);
+            CanvasPainter.MoveOnly(size * StripScale * Sqrt2, angle + 3 * A45);
         }
     }
 }
