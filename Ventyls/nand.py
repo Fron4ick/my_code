@@ -15,7 +15,7 @@ for i in range(1,16):print(f'\
     Nand (a = b3X{i}, b = b4X{i}, out = b5X{i});\n\
     Nand (a = b2X{i}, b = nf, out = b6X{i});\n\
     Nand (a = b5X{i}, b = bR{i-1}, out = b7X{i});\n\
-    Nand (a = b1X{i}, b = b7X{i}{i}, out = b8X{i});\n\
+    Nand (a = b1X{i}, b = b7X{i}, out = b8X{i});\n\
     Nand (a = b5X{i}, b = b7X{i}, out = b9X{i});\n\
     Nand (a = b7X{i}, b = bR{i-1}, out = b10X{i});\n\
     Nand (a = f, b = b8X{i}, out = b11X{i});\n\
@@ -23,4 +23,4 @@ for i in range(1,16):print(f'\
     Not (in = b11X{i}, out = bR{i});\n\
     Nand (a = b12X{i}, b = f, out = b13X{i});\n\
     Nand (a = b13X{i}, b = b6X{i}, out = b14X{i});\n\
-    Xor (a = b14X{i}, b = no, out = out[{i}]);\n')
+    Xor (a = b14X{i}, b = no, out = out[{i}], out = zrX{i});\n')
