@@ -7,6 +7,7 @@ for i in range(1,16):print(f'\
 	Xor (a = m3X{i}, b = nx, out = cxX{i});\n\
 	Xor (a = m4X{i}, b = ny, out = cyX{i});\n')
 '''
+'''
 for i in range(1,16):print(f'\
     Nand (a = cxX{i}, b = cyX{i}, out = b1X{i});\n\
     Not (in = b1X{i}, out = b2X{i});\n\
@@ -24,3 +25,31 @@ for i in range(1,16):print(f'\
     Nand (a = b12X{i}, b = f, out = b13X{i});\n\
     Nand (a = b13X{i}, b = b6X{i}, out = b14X{i});\n\
     Xor (a = b14X{i}, b = no, out = out[{i}], out = zrX{i});\n')
+'''
+'''
+for k in range(7):
+    print(f'\
+    Mux (a = mux3wave{k}X1, b = mux3wave{k}X2, sel = in[3], out = mux3wave{k}X1);')
+'''
+
+for i in range(4):
+    for j in range(4):
+        if i > j:  # чтобы избежать дубликатов (n3n2 и n2n3)
+            print(f"Nand(a=in[{i}], b=in[{j}], out=i{i}i{j});")
+
+
+# Только комбинации in[i] и n[j] (как в примере i3n2)
+print("// Комбинации in[i] и n[j]")
+for i in range(4):
+    for j in range(4):
+        if i != j:
+            print(f"Nand(a=in[{i}], b=n{j}, out=i{i}n{j});")
+
+print()
+
+# Только комбинации n[i] и n[j] (как в примере n3n2)
+print("// Комбинации n[i] и n[j]")
+for i in range(4):
+    for j in range(4):
+        if i > j:  # чтобы избежать дубликатов (n3n2 и n2n3)
+            print(f"Nand(a=n{i}, b=n{j}, out=n{i}n{j});")

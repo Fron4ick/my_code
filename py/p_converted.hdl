@@ -1,0 +1,102 @@
+// 7-segments digit display
+//    a
+//   ---
+// f| g |b
+//   ---
+// e|   |c
+//   ---
+//    d
+CHIP DigitDisplay {
+    IN in[4];
+    OUT a, b, c, d, e, f, g;
+    PARTS:
+    //   | 0 1 2 3 4 5 6 7 8 9 A b C d E F
+    // --|--------------------------------
+    // a | 1 0 1 1 0 1 1 1 1 1 1 0 1 0 1 1
+    // b | 1 1 1 1 1 0 0 1 1 1 1 0 0 1 0 0
+    // c | 1 1 0 1 1 1 1 1 1 1 1 1 0 1 0 0
+    // d | 1 0 1 1 0 1 1 0 1 1 0 1 1 1 1 0
+    // e | 1 0 1 0 0 0 1 0 1 0 1 1 1 1 1 1
+    // f | 1 0 0 0 1 1 1 0 1 1 1 1 1 0 1 1
+    // g | 0 0 1 1 1 1 1 0 1 1 1 1 0 1 1 1
+    
+    
+    Not (in = false, out = n0X0, out = n0X2, out = n0X3, out = n0X5, out = n0X6, out = n0X7, out = n0X8, out = n0X9, out = n0X10, out = n0X12, out = n0X14, out = n0X15, out = n1X0, out = n1X1, out = n1X2, out = n1X3, out = n1X4, out = n1X7, out = n1X8, out = n1X9, out = n1X10, out = n1X13, out = n2X0, out = n2X1, out = n2X3, out = n2X4, out = n2X5, out = n2X6, out = n2X7, out = n2X8, out = n2X9, out = n2X10, out = n2X11, out = n2X13, out = n3X0, out = n3X2, out = n3X3, out = n3X5, out = n3X6, out = n3X8, out = n3X9, out = n3X11, out = n3X12, out = n3X13, out = n3X14, out = n4X0, out = n4X2, out = n4X6, out = n4X8, out = n4X10, out = n4X11, out = n4X12, out = n4X13, out = n4X14, out = n4X15, out = n5X0, out = n5X4, out = n5X5, out = n5X6, out = n5X8, out = n5X9, out = n5X10, out = n5X11, out = n5X12, out = n5X14, out = n5X15, out = n6X2, out = n6X3, out = n6X4, out = n6X5, out = n6X6, out = n6X8, out = n6X9, out = n6X10, out = n6X11, out = n6X13, out = n6X14, out = n6X15);
+    Not (in = true, out = n0X1, out = n0X4, out = n0X11, out = n0X13, out = n1X5, out = n1X6, out = n1X11, out = n1X12, out = n1X14, out = n1X15, out = n2X2, out = n2X12, out = n2X14, out = n2X15, out = n3X1, out = n3X4, out = n3X7, out = n3X10, out = n3X15, out = n4X1, out = n4X3, out = n4X4, out = n4X5, out = n4X7, out = n4X9, out = n5X1, out = n5X2, out = n5X3, out = n5X7, out = n5X13, out = n6X0, out = n6X1, out = n6X7, out = n6X12);
+    Not (in = in[0], out = nin0);
+    Not (in = in[1], out = nin1);
+    Not (in = in[2], out = nin2);
+    Not (in = in[3], out = nin3);
+    
+    //First wave Mux
+
+    Nand (a = n0X1, b = in[0], out = nan1mux1wave0X0);
+    Nand (a = n0X0, b = nin0, out = nan2mux1wave0X0);
+    Nand (a = nan1mux1wave0X0, b = nan2mux1wave0X0, out = mux1wave0X0);
+
+    Nand (a = n0X3, b = in[0], out = nan1mux1wave0X2);
+    Nand (a = n0X2, b = nin0, out = nan2mux1wave0X2);
+    Nand (a = nan1mux1wave0X2, b = nan2mux1wave0X2, out = mux1wave0X2);
+
+    Nand (a = n0X5, b = in[0], out = nan1mux1wave0X4);
+    Nand (a = n0X4, b = nin0, out = nan2mux1wave0X4);
+    Nand (a = nan1mux1wave0X4, b = nan2mux1wave0X4, out = mux1wave0X4);
+
+    Nand (a = n0X7, b = in[0], out = nan1mux1wave0X6);
+    Nand (a = n0X6, b = nin0, out = nan2mux1wave0X6);
+    Nand (a = nan1mux1wave0X6, b = nan2mux1wave0X6, out = mux1wave0X6);
+
+    Nand (a = n0X9, b = in[0], out = nan1mux1wave0X8);
+    Nand (a = n0X8, b = nin0, out = nan2mux1wave0X8);
+    Nand (a = nan1mux1wave0X8, b = nan2mux1wave0X8, out = mux1wave0X8);
+
+    Nand (a = n0X11, b = in[0], out = nan1mux1wave0X10);
+    Nand (a = n0X10, b = nin0, out = nan2mux1wave0X10);
+    Nand (a = nan1mux1wave0X10, b = nan2mux1wave0X10, out = mux1wave0X10);
+
+    Nand (a = n0X13, b = in[0], out = nan1mux1wave0X12);
+    Nand (a = n0X12, b = nin0, out = nan2mux1wave0X12);
+    Nand (a = nan1mux1wave0X12, b = nan2mux1wave0X12, out = mux1wave0X12);
+
+    Nand (a = n0X15, b = in[0], out = nan1mux1wave0X14);
+    Nand (a = n0X14, b = nin0, out = nan2mux1wave0X14);
+    Nand (a = nan1mux1wave0X14, b = nan2mux1wave0X14, out = mux1wave0X14);
+
+
+    //Second wave Mux
+
+    Nand (a = mux1wave0X2, b = in[1], out = nan1mux2wave0X1);
+    Nand (a = mux1wave0X0, b = nin1, out = nan2mux2wave0X1);
+    Nand (a = nan1mux2wave0X1, b = nan2mux2wave0X1, out = mux2wave0X1);
+
+    Nand (a = mux1wave0X6, b = in[1], out = nan1mux2wave0X2);
+    Nand (a = mux1wave0X4, b = nin1, out = nan2mux2wave0X2);
+    Nand (a = nan1mux2wave0X2, b = nan2mux2wave0X2, out = mux2wave0X2);
+
+    Nand (a = mux1wave0X10, b = in[1], out = nan1mux2wave0X3);
+    Nand (a = mux1wave0X8, b = nin1, out = nan2mux2wave0X3);
+    Nand (a = nan1mux2wave0X3, b = nan2mux2wave0X3, out = mux2wave0X3);
+
+    Nand (a = mux1wave0X14, b = in[1], out = nan1mux2wave0X4);
+    Nand (a = mux1wave0X12, b = nin1, out = nan2mux2wave0X4);
+    Nand (a = nan1mux2wave0X4, b = nan2mux2wave0X4, out = mux2wave0X4);
+
+
+    //Third wave Mux
+
+    Nand (a = mux2wave0X2, b = in[2], out = nan1mux3wave0X1);
+    Nand (a = mux2wave0X1, b = nin2, out = nan2mux3wave0X1);
+    Nand (a = nan1mux3wave0X1, b = nan2mux3wave0X1, out = mux3wave0X1);
+
+    Nand (a = mux2wave0X4, b = in[2], out = nan1mux3wave0X2);
+    Nand (a = mux2wave0X3, b = nin2, out = nan2mux3wave0X2);
+    Nand (a = nan1mux3wave0X2, b = nan2mux3wave0X2, out = mux3wave0X2);
+
+
+    //Fourth wave Mux
+
+    Nand (a = mux3wave0X2, b = in[3], out = nan1a);
+    Nand (a = mux3wave0X1, b = nin3, out = nan2a);
+    Nand (a = nan1a, b = nan2a, out = a);
+
+}

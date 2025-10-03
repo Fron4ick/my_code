@@ -1,445 +1,63 @@
-/**
- * The ALU (Arithmetic Logic Unit).
- * Computes one of the following functions:
- * x+y, x-y, y-x, 0, 1, -1, x, y, -x, -y, !x, !y,
- * x+1, y+1, x-1, y-1, x&y, x|y on two 16-bit inputs, 
- * according to 6 input bits denoted zx,nx,zy,ny,f,no.
- * In addition, the ALU computes two 1-bit outputs:
- * if the ALU output == 0, zr is set to 1; otherwise zr is set to 0;
- * if the ALU output < 0, ng is set to 1; otherwise ng is set to 0.
- */
+// 7-segments digit display
+//    a
+//   ---
+// f| g |b
+//   ---
+// e|   |c
+//   ---
+//    d
+CHIP DigitDisplay {
+    IN in[4];
+    OUT a, b, c, d, e, f, g;
+    PARTS:
+    //   | 0 1 2 3 4 5 6 7 8 9 A b C d E F
+    // --|--------------------------------
+    // a | 1 0 1 1 0 1 1 1 1 1 1 0 1 0 1 1
+    // b | 1 1 1 1 1 0 0 1 1 1 1 0 0 1 0 0
+    // c | 1 1 0 1 1 1 1 1 1 1 1 1 0 1 0 0
+    // d | 1 0 1 1 0 1 1 0 1 1 0 1 1 1 1 0
+    // e | 1 0 1 0 0 0 1 0 1 0 1 1 1 1 1 1
+    // f | 1 0 0 0 1 1 1 0 1 1 1 1 1 0 1 1
+    // g | 0 0 1 1 1 1 1 0 1 1 1 1 0 1 1 1
+    
+    //Not (in = false, out = n0X0, out = n0X2, out = n0X3, out = n0X5, out = n0X6, out = n0X7, out = n0X8, out = n0X9, out = n0X10, out = n0X12, out = n0X14, out = n0X15, out = n1X0, out = n1X1, out = n1X2, out = n1X3, out = n1X4, out = n1X7, out = n1X8, out = n1X9, out = n1X10, out = n1X13, out = n2X0, out = n2X1, out = n2X3, out = n2X4, out = n2X5, out = n2X6, out = n2X7, out = n2X8, out = n2X9, out = n2X10, out = n2X11, out = n2X13, out = n3X0, out = n3X2, out = n3X3, out = n3X5, out = n3X6, out = n3X8, out = n3X9, out = n3X11, out = n3X12, out = n3X13, out = n3X14, out = n4X0, out = n4X2, out = n4X6, out = n4X8, out = n4X10, out = n4X11, out = n4X12, out = n4X13, out = n4X14, out = n4X15, out = n5X0, out = n5X4, out = n5X5, out = n5X6, out = n5X8, out = n5X9, out = n5X10, out = n5X11, out = n5X12, out = n5X14, out = n5X15, out = n6X2, out = n6X3, out = n6X4, out = n6X5, out = n6X6, out = n6X8, out = n6X9, out = n6X10, out = n6X11, out = n6X13, out = n6X14, out = n6X15);
+    //Not (in = true, out = n0X1, out = n0X4, out = n0X11, out = n0X13, out = n1X5, out = n1X6, out = n1X11, out = n1X12, out = n1X14, out = n1X15, out = n2X2, out = n2X12, out = n2X14, out = n2X15, out = n3X1, out = n3X4, out = n3X7, out = n3X10, out = n3X15, out = n4X1, out = n4X3, out = n4X4, out = n4X5, out = n4X7, out = n4X9, out = n5X1, out = n5X2, out = n5X3, out = n5X7, out = n5X13, out = n6X0, out = n6X1, out = n6X7, out = n6X12);
+    Not (in = in[0], out = n0);
+    Not (in = in[1], out = n1);
+    Not (in = in[2], out = n2);
+    Not (in = in[3], out = n3);
 
-// Implementation: the ALU logic manipulates the x and y inputs
-// and operates on the resulting values, as follows:
-// if (zx == 1) set x = 0        // 16-bit constant
-// if (nx == 1) set x = !x       // bitwise not
-// if (zy == 1) set y = 0        // 16-bit constant
-// if (ny == 1) set y = !y       // bitwise not
-// if (f == 1)  set out = x + y  // integer 2`s complement addition
-// if (f == 0)  set out = x & y  // bitwise and
-// if (no == 1) set out = !out   // bitwise not
-// if (out == 0) set zr = 1
-// if (out < 0) set ng = 1
-
-CHIP ALU {
-    IN  
-        x[16], y[16],  // 16-bit inputs        
-        zx, // zero the x input?
-        nx, // negate the x input?
-        zy, // zero the y input?
-        ny, // negate the y input?
-        f,  // compute out = x + y (if 1) or x & y (if 0)
-        no; // negate the out output?
-
-    OUT 
-        out[16], // 16-bit output
-        zr, // 1 if (out == 0), 0 otherwise
-        ng; // 1 if (out < 0),  0 otherwise
-
-	PARTS:
-
-	//-------Not
+    Nand(a=in[1], b=in[0], out=i1i0);
+    Nand(a=in[2], b=in[0], out=i2i0);
+    Nand(a=in[2], b=in[1], out=i2i1);
+    Nand(a=in[3], b=in[0], out=i3i0);
+    Nand(a=in[3], b=in[1], out=i3i1);
+    Nand(a=in[3], b=in[2], out=i3i2);
+    Nand(a=in[0], b=n1, out=i0n1);
+    Nand(a=in[0], b=n2, out=i0n2);
+    Nand(a=in[0], b=n3, out=i0n3);
+    Nand(a=in[1], b=n0, out=i1n0);
+    Nand(a=in[1], b=n2, out=i1n2);
+    Nand(a=in[1], b=n3, out=i1n3);
+    Nand(a=in[2], b=n0, out=i2n0);
+    Nand(a=in[2], b=n1, out=i2n1);
+    Nand(a=in[2], b=n3, out=i2n3);
+    Nand(a=in[3], b=n0, out=i3n0);
+    Nand(a=in[3], b=n1, out=i3n1);
+    Nand(a=in[3], b=n2, out=i3n2);
+    Nand(a=n1, b=n0, out=n1n0);
+    Nand(a=n2, b=n0, out=n2n0);
+    Nand(a=n2, b=n1, out=n2n1);
+    Nand(a=n3, b=n0, out=n3n0);
+    Nand(a=n3, b=n1, out=n3n1);
+    Nand(a=n3, b=n2, out=n3n2);
 
 
-    Not (in = zx, out = nox);
-    Not (in = zy, out = noy);
-	Not (in = f, out = nf);
-	
-
-	//-------M_C
-	
-	Nand (a = x[0], b = nox, out = m1X0);
-	Nand (a = y[0], b = noy, out = m2X0);
-	Not (in = m1X0, out = m3X0);
-	Not (in = m2X0, out = m4X0);
-	Xor (a = m3X0, b = nx, out = cxX0);
-	Xor (a = m4X0, b = ny, out = cyX0);
-
-	Nand (a = x[1], b = nox, out = m1X1);
-	Nand (a = y[1], b = noy, out = m2X1);
-	Not (in = m1X1, out = m3X1);
-	Not (in = m2X1, out = m4X1);
-	Xor (a = m3X1, b = nx, out = cxX1);
-	Xor (a = m4X1, b = ny, out = cyX1);
-
-	Nand (a = x[2], b = nox, out = m1X2);
-	Nand (a = y[2], b = noy, out = m2X2);
-	Not (in = m1X2, out = m3X2);
-	Not (in = m2X2, out = m4X2);
-	Xor (a = m3X2, b = nx, out = cxX2);
-	Xor (a = m4X2, b = ny, out = cyX2);
-
-	Nand (a = x[3], b = nox, out = m1X3);
-	Nand (a = y[3], b = noy, out = m2X3);
-	Not (in = m1X3, out = m3X3);
-	Not (in = m2X3, out = m4X3);
-	Xor (a = m3X3, b = nx, out = cxX3);
-	Xor (a = m4X3, b = ny, out = cyX3);
-
-	Nand (a = x[4], b = nox, out = m1X4);
-	Nand (a = y[4], b = noy, out = m2X4);
-	Not (in = m1X4, out = m3X4);
-	Not (in = m2X4, out = m4X4);
-	Xor (a = m3X4, b = nx, out = cxX4);
-	Xor (a = m4X4, b = ny, out = cyX4);
-
-	Nand (a = x[5], b = nox, out = m1X5);
-	Nand (a = y[5], b = noy, out = m2X5);
-	Not (in = m1X5, out = m3X5);
-	Not (in = m2X5, out = m4X5);
-	Xor (a = m3X5, b = nx, out = cxX5);
-	Xor (a = m4X5, b = ny, out = cyX5);
-
-	Nand (a = x[6], b = nox, out = m1X6);
-	Nand (a = y[6], b = noy, out = m2X6);
-	Not (in = m1X6, out = m3X6);
-	Not (in = m2X6, out = m4X6);
-	Xor (a = m3X6, b = nx, out = cxX6);
-	Xor (a = m4X6, b = ny, out = cyX6);
-
-	Nand (a = x[7], b = nox, out = m1X7);
-	Nand (a = y[7], b = noy, out = m2X7);
-	Not (in = m1X7, out = m3X7);
-	Not (in = m2X7, out = m4X7);
-	Xor (a = m3X7, b = nx, out = cxX7);
-	Xor (a = m4X7, b = ny, out = cyX7);
-
-	Nand (a = x[8], b = nox, out = m1X8);
-	Nand (a = y[8], b = noy, out = m2X8);
-	Not (in = m1X8, out = m3X8);
-	Not (in = m2X8, out = m4X8);
-	Xor (a = m3X8, b = nx, out = cxX8);
-	Xor (a = m4X8, b = ny, out = cyX8);
-
-	Nand (a = x[9], b = nox, out = m1X9);
-	Nand (a = y[9], b = noy, out = m2X9);
-	Not (in = m1X9, out = m3X9);
-	Not (in = m2X9, out = m4X9);
-	Xor (a = m3X9, b = nx, out = cxX9);
-	Xor (a = m4X9, b = ny, out = cyX9);
-
-	Nand (a = x[10], b = nox, out = m1X10);
-	Nand (a = y[10], b = noy, out = m2X10);
-	Not (in = m1X10, out = m3X10);
-	Not (in = m2X10, out = m4X10);
-	Xor (a = m3X10, b = nx, out = cxX10);
-	Xor (a = m4X10, b = ny, out = cyX10);
-
-	Nand (a = x[11], b = nox, out = m1X11);
-	Nand (a = y[11], b = noy, out = m2X11);
-	Not (in = m1X11, out = m3X11);
-	Not (in = m2X11, out = m4X11);
-	Xor (a = m3X11, b = nx, out = cxX11);
-	Xor (a = m4X11, b = ny, out = cyX11);
-
-	Nand (a = x[12], b = nox, out = m1X12);
-	Nand (a = y[12], b = noy, out = m2X12);
-	Not (in = m1X12, out = m3X12);
-	Not (in = m2X12, out = m4X12);
-	Xor (a = m3X12, b = nx, out = cxX12);
-	Xor (a = m4X12, b = ny, out = cyX12);
-
-	Nand (a = x[13], b = nox, out = m1X13);
-	Nand (a = y[13], b = noy, out = m2X13);
-	Not (in = m1X13, out = m3X13);
-	Not (in = m2X13, out = m4X13);
-	Xor (a = m3X13, b = nx, out = cxX13);
-	Xor (a = m4X13, b = ny, out = cyX13);
-
-	Nand (a = x[14], b = nox, out = m1X14);
-	Nand (a = y[14], b = noy, out = m2X14);
-	Not (in = m1X14, out = m3X14);
-	Not (in = m2X14, out = m4X14);
-	Xor (a = m3X14, b = nx, out = cxX14);
-	Xor (a = m4X14, b = ny, out = cyX14);
-
-	Nand (a = x[15], b = nox, out = m1X15);
-	Nand (a = y[15], b = noy, out = m2X15);
-	Not (in = m1X15, out = m3X15);
-	Not (in = m2X15, out = m4X15);
-	Xor (a = m3X15, b = nx, out = cxX15);
-	Xor (a = m4X15, b = ny, out = cyX15);
-	
-
-	//-------M_C
-	
-
-	Nand (a = cxX0, b = cyX0, out = b1X0);
-    Nand (a = b1X0, b = cxX0, out = b2X0);
-    Nand (a = b1X0, b = cyX0, out = b3X0);
-    Nand (a = b1X0, b = b1X0, out = bR0);
-    Nand (a = b2X0, b = b3X0, out = b4X0);
-    Nand (a = bR0, b = nf, out = b5X0);
-    Nand (a = b4X0, b = f, out = b6X0);
-    Nand (a = b5X0, b = b6X0, out = b7X0);
-    Xor (a = b7X0, b = no, out = out[0], out = zrX0);
-
-    //--------
-
-    Nand (a = cxX1, b = cyX1, out = b1X1);
-    Not (in = b1X1, out = b2X1);
-    Nand (a = cxX1, b = b1X1, out = b3X1);
-    Nand (a = b1X1, b = cyX1, out = b4X1);
-    Nand (a = b3X1, b = b4X1, out = b5X1);
-    Nand (a = b2X1, b = nf, out = b6X1);
-    Nand (a = b5X1, b = bR0, out = b7X1);
-    Nand (a = b1X1, b = b7X1, out = b8X1);
-    Nand (a = b5X1, b = b7X1, out = b9X1);
-    Nand (a = b7X1, b = bR0, out = b10X1);
-    Nand (a = f, b = b8X1, out = b11X1);
-    Nand (a = b9X1, b = b10X1, out = b12X1);
-    Not (in = b11X1, out = bR1);
-    Nand (a = b12X1, b = f, out = b13X1);
-    Nand (a = b13X1, b = b6X1, out = b14X1);
-    Xor (a = b14X1, b = no, out = out[1], out = zrX1);
-
-    Nand (a = cxX2, b = cyX2, out = b1X2);
-    Not (in = b1X2, out = b2X2);
-    Nand (a = cxX2, b = b1X2, out = b3X2);
-    Nand (a = b1X2, b = cyX2, out = b4X2);
-    Nand (a = b3X2, b = b4X2, out = b5X2);
-    Nand (a = b2X2, b = nf, out = b6X2);
-    Nand (a = b5X2, b = bR1, out = b7X2);
-    Nand (a = b1X2, b = b7X2, out = b8X2);
-    Nand (a = b5X2, b = b7X2, out = b9X2);
-    Nand (a = b7X2, b = bR1, out = b10X2);
-    Nand (a = f, b = b8X2, out = b11X2);
-    Nand (a = b9X2, b = b10X2, out = b12X2);
-    Not (in = b11X2, out = bR2);
-    Nand (a = b12X2, b = f, out = b13X2);
-    Nand (a = b13X2, b = b6X2, out = b14X2);
-    Xor (a = b14X2, b = no, out = out[2], out = zrX2);
-
-    Nand (a = cxX3, b = cyX3, out = b1X3);
-    Not (in = b1X3, out = b2X3);
-    Nand (a = cxX3, b = b1X3, out = b3X3);
-    Nand (a = b1X3, b = cyX3, out = b4X3);
-    Nand (a = b3X3, b = b4X3, out = b5X3);
-    Nand (a = b2X3, b = nf, out = b6X3);
-    Nand (a = b5X3, b = bR2, out = b7X3);
-    Nand (a = b1X3, b = b7X3, out = b8X3);
-    Nand (a = b5X3, b = b7X3, out = b9X3);
-    Nand (a = b7X3, b = bR2, out = b10X3);
-    Nand (a = f, b = b8X3, out = b11X3);
-    Nand (a = b9X3, b = b10X3, out = b12X3);
-    Not (in = b11X3, out = bR3);
-    Nand (a = b12X3, b = f, out = b13X3);
-    Nand (a = b13X3, b = b6X3, out = b14X3);
-    Xor (a = b14X3, b = no, out = out[3], out = zrX3);
-
-    Nand (a = cxX4, b = cyX4, out = b1X4);
-    Not (in = b1X4, out = b2X4);
-    Nand (a = cxX4, b = b1X4, out = b3X4);
-    Nand (a = b1X4, b = cyX4, out = b4X4);
-    Nand (a = b3X4, b = b4X4, out = b5X4);
-    Nand (a = b2X4, b = nf, out = b6X4);
-    Nand (a = b5X4, b = bR3, out = b7X4);
-    Nand (a = b1X4, b = b7X4, out = b8X4);
-    Nand (a = b5X4, b = b7X4, out = b9X4);
-    Nand (a = b7X4, b = bR3, out = b10X4);
-    Nand (a = f, b = b8X4, out = b11X4);
-    Nand (a = b9X4, b = b10X4, out = b12X4);
-    Not (in = b11X4, out = bR4);
-    Nand (a = b12X4, b = f, out = b13X4);
-    Nand (a = b13X4, b = b6X4, out = b14X4);
-    Xor (a = b14X4, b = no, out = out[4], out = zrX4);
-
-    Nand (a = cxX5, b = cyX5, out = b1X5);
-    Not (in = b1X5, out = b2X5);
-    Nand (a = cxX5, b = b1X5, out = b3X5);
-    Nand (a = b1X5, b = cyX5, out = b4X5);
-    Nand (a = b3X5, b = b4X5, out = b5X5);
-    Nand (a = b2X5, b = nf, out = b6X5);
-    Nand (a = b5X5, b = bR4, out = b7X5);
-    Nand (a = b1X5, b = b7X5, out = b8X5);
-    Nand (a = b5X5, b = b7X5, out = b9X5);
-    Nand (a = b7X5, b = bR4, out = b10X5);
-    Nand (a = f, b = b8X5, out = b11X5);
-    Nand (a = b9X5, b = b10X5, out = b12X5);
-    Not (in = b11X5, out = bR5);
-    Nand (a = b12X5, b = f, out = b13X5);
-    Nand (a = b13X5, b = b6X5, out = b14X5);
-    Xor (a = b14X5, b = no, out = out[5], out = zrX5);
-
-    Nand (a = cxX6, b = cyX6, out = b1X6);
-    Not (in = b1X6, out = b2X6);
-    Nand (a = cxX6, b = b1X6, out = b3X6);
-    Nand (a = b1X6, b = cyX6, out = b4X6);
-    Nand (a = b3X6, b = b4X6, out = b5X6);
-    Nand (a = b2X6, b = nf, out = b6X6);
-    Nand (a = b5X6, b = bR5, out = b7X6);
-    Nand (a = b1X6, b = b7X6, out = b8X6);
-    Nand (a = b5X6, b = b7X6, out = b9X6);
-    Nand (a = b7X6, b = bR5, out = b10X6);
-    Nand (a = f, b = b8X6, out = b11X6);
-    Nand (a = b9X6, b = b10X6, out = b12X6);
-    Not (in = b11X6, out = bR6);
-    Nand (a = b12X6, b = f, out = b13X6);
-    Nand (a = b13X6, b = b6X6, out = b14X6);
-    Xor (a = b14X6, b = no, out = out[6], out = zrX6);
-
-    Nand (a = cxX7, b = cyX7, out = b1X7);
-    Not (in = b1X7, out = b2X7);
-    Nand (a = cxX7, b = b1X7, out = b3X7);
-    Nand (a = b1X7, b = cyX7, out = b4X7);
-    Nand (a = b3X7, b = b4X7, out = b5X7);
-    Nand (a = b2X7, b = nf, out = b6X7);
-    Nand (a = b5X7, b = bR6, out = b7X7);
-    Nand (a = b1X7, b = b7X7, out = b8X7);
-    Nand (a = b5X7, b = b7X7, out = b9X7);
-    Nand (a = b7X7, b = bR6, out = b10X7);
-    Nand (a = f, b = b8X7, out = b11X7);
-    Nand (a = b9X7, b = b10X7, out = b12X7);
-    Not (in = b11X7, out = bR7);
-    Nand (a = b12X7, b = f, out = b13X7);
-    Nand (a = b13X7, b = b6X7, out = b14X7);
-    Xor (a = b14X7, b = no, out = out[7], out = zrX7);
-
-    Nand (a = cxX8, b = cyX8, out = b1X8);
-    Not (in = b1X8, out = b2X8);
-    Nand (a = cxX8, b = b1X8, out = b3X8);
-    Nand (a = b1X8, b = cyX8, out = b4X8);
-    Nand (a = b3X8, b = b4X8, out = b5X8);
-    Nand (a = b2X8, b = nf, out = b6X8);
-    Nand (a = b5X8, b = bR7, out = b7X8);
-    Nand (a = b1X8, b = b7X8, out = b8X8);
-    Nand (a = b5X8, b = b7X8, out = b9X8);
-    Nand (a = b7X8, b = bR7, out = b10X8);
-    Nand (a = f, b = b8X8, out = b11X8);
-    Nand (a = b9X8, b = b10X8, out = b12X8);
-    Not (in = b11X8, out = bR8);
-    Nand (a = b12X8, b = f, out = b13X8);
-    Nand (a = b13X8, b = b6X8, out = b14X8);
-    Xor (a = b14X8, b = no, out = out[8], out = zrX8);
-
-    Nand (a = cxX9, b = cyX9, out = b1X9);
-    Not (in = b1X9, out = b2X9);
-    Nand (a = cxX9, b = b1X9, out = b3X9);
-    Nand (a = b1X9, b = cyX9, out = b4X9);
-    Nand (a = b3X9, b = b4X9, out = b5X9);
-    Nand (a = b2X9, b = nf, out = b6X9);
-    Nand (a = b5X9, b = bR8, out = b7X9);
-    Nand (a = b1X9, b = b7X9, out = b8X9);
-    Nand (a = b5X9, b = b7X9, out = b9X9);
-    Nand (a = b7X9, b = bR8, out = b10X9);
-    Nand (a = f, b = b8X9, out = b11X9);
-    Nand (a = b9X9, b = b10X9, out = b12X9);
-    Not (in = b11X9, out = bR9);
-    Nand (a = b12X9, b = f, out = b13X9);
-    Nand (a = b13X9, b = b6X9, out = b14X9);
-    Xor (a = b14X9, b = no, out = out[9], out = zrX9);
-
-    Nand (a = cxX10, b = cyX10, out = b1X10);
-    Not (in = b1X10, out = b2X10);
-    Nand (a = cxX10, b = b1X10, out = b3X10);
-    Nand (a = b1X10, b = cyX10, out = b4X10);
-    Nand (a = b3X10, b = b4X10, out = b5X10);
-    Nand (a = b2X10, b = nf, out = b6X10);
-    Nand (a = b5X10, b = bR9, out = b7X10);
-    Nand (a = b1X10, b = b7X10, out = b8X10);
-    Nand (a = b5X10, b = b7X10, out = b9X10);
-    Nand (a = b7X10, b = bR9, out = b10X10);
-    Nand (a = f, b = b8X10, out = b11X10);
-    Nand (a = b9X10, b = b10X10, out = b12X10);
-    Not (in = b11X10, out = bR10);
-    Nand (a = b12X10, b = f, out = b13X10);
-    Nand (a = b13X10, b = b6X10, out = b14X10);
-    Xor (a = b14X10, b = no, out = out[10], out = zrX10);
-
-    Nand (a = cxX11, b = cyX11, out = b1X11);
-    Not (in = b1X11, out = b2X11);
-    Nand (a = cxX11, b = b1X11, out = b3X11);
-    Nand (a = b1X11, b = cyX11, out = b4X11);
-    Nand (a = b3X11, b = b4X11, out = b5X11);
-    Nand (a = b2X11, b = nf, out = b6X11);
-    Nand (a = b5X11, b = bR10, out = b7X11);
-    Nand (a = b1X11, b = b7X11, out = b8X11);
-    Nand (a = b5X11, b = b7X11, out = b9X11);
-    Nand (a = b7X11, b = bR10, out = b10X11);
-    Nand (a = f, b = b8X11, out = b11X11);
-    Nand (a = b9X11, b = b10X11, out = b12X11);
-    Not (in = b11X11, out = bR11);
-    Nand (a = b12X11, b = f, out = b13X11);
-    Nand (a = b13X11, b = b6X11, out = b14X11);
-    Xor (a = b14X11, b = no, out = out[11], out = zrX11);
-
-    Nand (a = cxX12, b = cyX12, out = b1X12);
-    Not (in = b1X12, out = b2X12);
-    Nand (a = cxX12, b = b1X12, out = b3X12);
-    Nand (a = b1X12, b = cyX12, out = b4X12);
-    Nand (a = b3X12, b = b4X12, out = b5X12);
-    Nand (a = b2X12, b = nf, out = b6X12);
-    Nand (a = b5X12, b = bR11, out = b7X12);
-    Nand (a = b1X12, b = b7X12, out = b8X12);
-    Nand (a = b5X12, b = b7X12, out = b9X12);
-    Nand (a = b7X12, b = bR11, out = b10X12);
-    Nand (a = f, b = b8X12, out = b11X12);
-    Nand (a = b9X12, b = b10X12, out = b12X12);
-    Not (in = b11X12, out = bR12);
-    Nand (a = b12X12, b = f, out = b13X12);
-    Nand (a = b13X12, b = b6X12, out = b14X12);
-    Xor (a = b14X12, b = no, out = out[12], out = zrX12);
-
-    Nand (a = cxX13, b = cyX13, out = b1X13);
-    Not (in = b1X13, out = b2X13);
-    Nand (a = cxX13, b = b1X13, out = b3X13);
-    Nand (a = b1X13, b = cyX13, out = b4X13);
-    Nand (a = b3X13, b = b4X13, out = b5X13);
-    Nand (a = b2X13, b = nf, out = b6X13);
-    Nand (a = b5X13, b = bR12, out = b7X13);
-    Nand (a = b1X13, b = b7X13, out = b8X13);
-    Nand (a = b5X13, b = b7X13, out = b9X13);
-    Nand (a = b7X13, b = bR12, out = b10X13);
-    Nand (a = f, b = b8X13, out = b11X13);
-    Nand (a = b9X13, b = b10X13, out = b12X13);
-    Not (in = b11X13, out = bR13);
-    Nand (a = b12X13, b = f, out = b13X13);
-    Nand (a = b13X13, b = b6X13, out = b14X13);
-    Xor (a = b14X13, b = no, out = out[13], out = zrX13);
-
-    Nand (a = cxX14, b = cyX14, out = b1X14);
-    Not (in = b1X14, out = b2X14);
-    Nand (a = cxX14, b = b1X14, out = b3X14);
-    Nand (a = b1X14, b = cyX14, out = b4X14);
-    Nand (a = b3X14, b = b4X14, out = b5X14);
-    Nand (a = b2X14, b = nf, out = b6X14);
-    Nand (a = b5X14, b = bR13, out = b7X14);
-    Nand (a = b1X14, b = b7X14, out = b8X14);
-    Nand (a = b5X14, b = b7X14, out = b9X14);
-    Nand (a = b7X14, b = bR13, out = b10X14);
-    Nand (a = f, b = b8X14, out = b11X14);
-    Nand (a = b9X14, b = b10X14, out = b12X14);
-    Not (in = b11X14, out = bR14);
-    Nand (a = b12X14, b = f, out = b13X14);
-    Nand (a = b13X14, b = b6X14, out = b14X14);
-    Xor (a = b14X14, b = no, out = out[14], out = zrX14);
-
-    Nand (a = cxX15, b = cyX15, out = b1X15);
-    Not (in = b1X15, out = b2X15);
-    Nand (a = cxX15, b = b1X15, out = b3X15);
-    Nand (a = b1X15, b = cyX15, out = b4X15);
-    Nand (a = b3X15, b = b4X15, out = b5X15);
-    Nand (a = b2X15, b = nf, out = b6X15);
-    Nand (a = b5X15, b = bR14, out = b7X15);
-    Nand (a = b1X15, b = b7X15, out = b8X15);
-    Nand (a = b5X15, b = b7X15, out = b9X15);
-    Nand (a = b7X15, b = bR14, out = b10X15);
-    Nand (a = f, b = b8X15, out = b11X15);
-    Nand (a = b9X15, b = b10X15, out = b12X15);
-    Not (in = b11X15, out = bR15);
-    Nand (a = b12X15, b = f, out = b13X15);
-    Nand (a = b13X15, b = b6X15, out = b14X15);
-    Xor (a = b14X15, b = no, out = out[15], out = zrX15, out = ng);//-------NG
-	
-	//-------ZR_
-	
-	Or (a = zrX0, b = zrX1, out  = oxrX1);Or (a = zrX2, b = zrX3, out  = oxrX2);
-	Or (a = zrX4, b = zrX5, out  = oxrX3);Or (a = zrX6, b = zrX7, out  = oxrX4);
-	Or (a = zrX8, b = zrX9, out  = oxrX5);Or (a = zrX10, b = zrX11, out  = oxrX6);
-	Or (a = zrX12, b = zrX13, out  = oxrX7);Or (a = zrX14, b = zrX15, out  = oxrX8);
-	Or (a  = oxrX1, b  = oxrX2, out  = oxrX9);Or (a  = oxrX3, b  = oxrX4, out  = oxrX10);
-	Or (a  = oxrX5, b  = oxrX6, out  = oxrX11);Or (a  = oxrX7, b  = oxrX8, out  = oxrX12);
-	Or (a  = oxrX9, b  = oxrX10, out  = oxrX13);Or (a  = oxrX11, b  = oxrX12, out  = oxrX14);
-	Or (a  = oxrX13, b  = oxrX14, out  = nzr);
-    Not (in = nzr, out = zr);
+    Or(a=n3n2, b=n1i0, out=c1);
+    Or(a=n3i2, b=n1n0, out=c4);
+    Or(a=i3n2, b=i1i0, out=cb);
+    Or(a=i3i2, b=n1i0, out=cd);
+    And(a=c1, b=c4, out=n1N1);
+    And(a=cb, b=cd, out=n1N2);
+	And(a=n1N1, b=n1N2, out=a);
 }
