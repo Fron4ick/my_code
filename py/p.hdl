@@ -19,45 +19,73 @@ CHIP DigitDisplay {
     // e | 1 0 1 0 0 0 1 0 1 0 1 1 1 1 1 1
     // f | 1 0 0 0 1 1 1 0 1 1 1 1 1 0 1 1
     // g | 0 0 1 1 1 1 1 0 1 1 1 1 0 1 1 1
-    
-    //Not (in = false, out = n0X0, out = n0X2, out = n0X3, out = n0X5, out = n0X6, out = n0X7, out = n0X8, out = n0X9, out = n0X10, out = n0X12, out = n0X14, out = n0X15, out = n1X0, out = n1X1, out = n1X2, out = n1X3, out = n1X4, out = n1X7, out = n1X8, out = n1X9, out = n1X10, out = n1X13, out = n2X0, out = n2X1, out = n2X3, out = n2X4, out = n2X5, out = n2X6, out = n2X7, out = n2X8, out = n2X9, out = n2X10, out = n2X11, out = n2X13, out = n3X0, out = n3X2, out = n3X3, out = n3X5, out = n3X6, out = n3X8, out = n3X9, out = n3X11, out = n3X12, out = n3X13, out = n3X14, out = n4X0, out = n4X2, out = n4X6, out = n4X8, out = n4X10, out = n4X11, out = n4X12, out = n4X13, out = n4X14, out = n4X15, out = n5X0, out = n5X4, out = n5X5, out = n5X6, out = n5X8, out = n5X9, out = n5X10, out = n5X11, out = n5X12, out = n5X14, out = n5X15, out = n6X2, out = n6X3, out = n6X4, out = n6X5, out = n6X6, out = n6X8, out = n6X9, out = n6X10, out = n6X11, out = n6X13, out = n6X14, out = n6X15);
-    //Not (in = true, out = n0X1, out = n0X4, out = n0X11, out = n0X13, out = n1X5, out = n1X6, out = n1X11, out = n1X12, out = n1X14, out = n1X15, out = n2X2, out = n2X12, out = n2X14, out = n2X15, out = n3X1, out = n3X4, out = n3X7, out = n3X10, out = n3X15, out = n4X1, out = n4X3, out = n4X4, out = n4X5, out = n4X7, out = n4X9, out = n5X1, out = n5X2, out = n5X3, out = n5X7, out = n5X13, out = n6X0, out = n6X1, out = n6X7, out = n6X12);
+
     Not (in = in[0], out = n0);
     Not (in = in[1], out = n1);
     Not (in = in[2], out = n2);
     Not (in = in[3], out = n3);
 
-    Nand(a=in[1], b=in[0], out=i1i0);
-    Nand(a=in[2], b=in[0], out=i2i0);
-    Nand(a=in[2], b=in[1], out=i2i1);
-    Nand(a=in[3], b=in[0], out=i3i0);
-    Nand(a=in[3], b=in[1], out=i3i1);
-    Nand(a=in[3], b=in[2], out=i3i2);
-    Nand(a=in[0], b=n1, out=i0n1);
-    Nand(a=in[0], b=n2, out=i0n2);
-    Nand(a=in[0], b=n3, out=i0n3);
-    Nand(a=in[1], b=n0, out=i1n0);
-    Nand(a=in[1], b=n2, out=i1n2);
-    Nand(a=in[1], b=n3, out=i1n3);
-    Nand(a=in[2], b=n0, out=i2n0);
-    Nand(a=in[2], b=n1, out=i2n1);
-    Nand(a=in[2], b=n3, out=i2n3);
-    Nand(a=in[3], b=n0, out=i3n0);
-    Nand(a=in[3], b=n1, out=i3n1);
-    Nand(a=in[3], b=n2, out=i3n2);
-    Nand(a=n1, b=n0, out=n1n0);
-    Nand(a=n2, b=n0, out=n2n0);
-    Nand(a=n2, b=n1, out=n2n1);
-    Nand(a=n3, b=n0, out=n3n0);
-    Nand(a=n3, b=n1, out=n3n1);
-    Nand(a=n3, b=n2, out=n3n2);
+    //---------------------------
 
+	Nand(a=n3, b=n2, out=x0ch1);
+	Nand(a=n1, b=n0, out=x0ch2);
+	Or(a=x0ch1, b=x0ch2, out=ch0);
 
-    Or(a=n3n2, b=n1i0, out=c1);
-    Or(a=n3i2, b=n1n0, out=c4);
-    Or(a=i3n2, b=i1i0, out=cb);
-    Or(a=i3i2, b=n1i0, out=cd);
-    And(a=c1, b=c4, out=n1N1);
-    And(a=cb, b=cd, out=n1N2);
-	And(a=n1N1, b=n1N2, out=a);
+	Nand(a=n1, b=in[0], out=x1ch2);
+	Or(a=x0ch1, b=x1ch2, out=ch1);
+
+    Nand(a=in[1], b=n0, out=x2ch2);
+	Or(a=x0ch1, b=x2ch2, out=ch2);
+
+	Nand(a=in[1], b=in[0], out=x3ch2);
+	Or(a=x0ch1, b=x3ch2, out=ch3);
+
+	Nand(a=n3, b=in[2], out=x4ch1);
+	Or(a=x4ch1, b=x0ch2, out=ch4);
+	Or(a=x4ch1, b=x1ch2, out=ch5);
+	Or(a=x4ch1, b=x2ch2, out=ch6);
+	Or(a=x4ch1, b=x3ch2, out=ch7);
+
+	Nand(a=in[3], b=n2, out=x8ch1);
+	Or(a=x8ch1, b=x1ch2, out=ch9);
+	Or(a=x8ch1, b=x2ch2, out=cha);
+	Or(a=x8ch1, b=x3ch2, out=chb);
+
+	Nand(a=in[3], b=in[2], out=x12ch1);
+	Or(a=x12ch1, b=x0ch2, out=chc);
+	Or(a=x12ch1, b=x1ch2, out=chd);
+	Or(a=x12ch1, b=x2ch2, out=che);
+	Or(a=x12ch1, b=x3ch2, out=chf);
+
+    //---------------------------
+    
+    And(a=ch1, b=ch4, out=a1);
+    And(a=chb, b=chd, out=a2);
+	And(a=a1, b=a2, out=a);
+
+    And(a=ch5, b=ch6, out=b1);
+    And(a=chb, b=chc, out=b2);
+    And(a=che, b=chf, out=b3);
+    And(a=b1, b=b2, out=b4);
+	And(a=b4, b=b3, out=b);
+
+    And(a=ch2, b=chc, out=c1);
+    And(a=c1, b=b3, out=c);
+
+    And(a=ch1, b=ch7, out=d1);
+    And(a=ch4, b=cha, out=d2);
+    And(a=d1, b=d2, out=d3);
+    And(a=d3, b=chf, out=d);
+
+    And(a=ch3, b=ch4, out=e1);
+    And(a=ch5, b=ch9, out=e2);
+    And(a=e1, b=e2, out=e3);
+    And(a=e3, b=d1, out=e);
+
+    And(a=ch2, b=ch3, out=f1);
+    And(a=d1, b=chd, out=f2);
+    And(a=f1, b=f2, out=f);
+
+    And(a=ch0, b=chc, out=g1);
+    And(a=g1, b=d1, out=g);
 }

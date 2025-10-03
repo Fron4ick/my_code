@@ -32,7 +32,7 @@ for k in range(7):
     Mux (a = mux3wave{k}X1, b = mux3wave{k}X2, sel = in[3], out = mux3wave{k}X1);')
 '''
 
-for i in range(4):
+'''for i in range(4):
     for j in range(4):
         if i > j:  # чтобы избежать дубликатов (n3n2 и n2n3)
             print(f"Nand(a=in[{i}], b=in[{j}], out=i{i}i{j});")
@@ -52,4 +52,20 @@ print("// Комбинации n[i] и n[j]")
 for i in range(4):
     for j in range(4):
         if i > j:  # чтобы избежать дубликатов (n3n2 и n2n3)
-            print(f"Nand(a=n{i}, b=n{j}, out=n{i}n{j});")
+            print(f"Nand(a=n{i}, b=n{j}, out=n{i}n{j});")'''
+
+def v(s):return 'i' if s==1 else 'n'
+i = 0
+for a in 0,1:
+    for b in 0,1:
+        for c in 0,1:
+            for d in 0,1:
+                q1 = 'i[3]' if a else 'n3'
+                q2 = 'i[2]' if b else 'n2'
+                q3 = 'i[1]' if c else 'n1'
+                q4 = 'i[0]' if d else 'n0'
+                p = int(str(a)+str(b)+str(c)+str(d),2)
+                print(f'	Nand(a={'i[3]' if a else 'n3'}, b={'i[2]' if b else 'n2'}, out=x{p}ch1)')
+                print(f'	Nand(a={'i[1]' if c else 'n1'}, b={'i[0]' if d else 'n0'}, out=x{p}ch2)')
+                print(f'	Or(a=x{p}ch1, b=x{p}ch2, out=ch{p})\n')
+print(input())
