@@ -63,18 +63,995 @@ CHIP RAM8 {
 	Not(in=load6, out=nload6);
 	Not(in=load7, out=nload7);	
 
-    // Восемь регистров
-    Register(in = in, load = load0, out = out0W);
-    Register(in = in, load = load1, out = out1W);
-    Register(in = in, load = load2, out = out2W);
-    Register(in = in, load = load3, out = out3W);
-    Register(in = in, load = load4, out = out4W);
-    Register(in = in, load = load5, out = out5W);
-    Register(in = in, load = load6, out = out6W);
-    Register(in = in, load = load7, out = out7W);
-
-    // Выбираем нужный out по address
-    Mux8Way16(a = out0W, b = out1W, c = out2W, d = out3W,
-              e = out4W, f = out5W, g = out6W, h = out7W,
-              sel = address, out = out);
+        Nand(a=in[0],  b=load0,  out=in0load0);
+        Nand(a=dffout0X0, b=nload0, out=out0X0nload0);
+        Nand(a=in0load0,   b=out0X0nload0,  out=in0load0out0X0nload0);
+        DFF(in=in0load0out0X0nload0, out = dffout0X0, out=out0X0);
+        
+        Nand(a=in[1],  b=load0,  out=in1load0);
+        Nand(a=dffout0X1, b=nload0, out=out0X1nload0);
+        Nand(a=in1load0,   b=out0X1nload0,  out=in1load0out0X1nload0);
+        DFF(in=in1load0out0X1nload0, out = dffout0X1, out=out0X1);
+        
+        Nand(a=in[2],  b=load0,  out=in2load0);
+        Nand(a=dffout0X2, b=nload0, out=out0X2nload0);
+        Nand(a=in2load0,   b=out0X2nload0,  out=in2load0out0X2nload0);
+        DFF(in=in2load0out0X2nload0, out = dffout0X2, out=out0X2);
+        
+        Nand(a=in[3],  b=load0,  out=in3load0);
+        Nand(a=dffout0X3, b=nload0, out=out0X3nload0);
+        Nand(a=in3load0,   b=out0X3nload0,  out=in3load0out0X3nload0);
+        DFF(in=in3load0out0X3nload0, out = dffout0X3, out=out0X3);
+        
+        Nand(a=in[4],  b=load0,  out=in4load0);
+        Nand(a=dffout0X4, b=nload0, out=out0X4nload0);
+        Nand(a=in4load0,   b=out0X4nload0,  out=in4load0out0X4nload0);
+        DFF(in=in4load0out0X4nload0, out = dffout0X4, out=out0X4);
+        
+        Nand(a=in[5],  b=load0,  out=in5load0);
+        Nand(a=dffout0X5, b=nload0, out=out0X5nload0);
+        Nand(a=in5load0,   b=out0X5nload0,  out=in5load0out0X5nload0);
+        DFF(in=in5load0out0X5nload0, out = dffout0X5, out=out0X5);
+        
+        Nand(a=in[6],  b=load0,  out=in6load0);
+        Nand(a=dffout0X6, b=nload0, out=out0X6nload0);
+        Nand(a=in6load0,   b=out0X6nload0,  out=in6load0out0X6nload0);
+        DFF(in=in6load0out0X6nload0, out = dffout0X6, out=out0X6);
+        
+        Nand(a=in[7],  b=load0,  out=in7load0);
+        Nand(a=dffout0X7, b=nload0, out=out0X7nload0);
+        Nand(a=in7load0,   b=out0X7nload0,  out=in7load0out0X7nload0);
+        DFF(in=in7load0out0X7nload0, out = dffout0X7, out=out0X7);
+        
+        Nand(a=in[8],  b=load0,  out=in8load0);
+        Nand(a=dffout0X8, b=nload0, out=out0X8nload0);
+        Nand(a=in8load0,   b=out0X8nload0,  out=in8load0out0X8nload0);
+        DFF(in=in8load0out0X8nload0, out = dffout0X8, out=out0X8);
+        
+        Nand(a=in[9],  b=load0,  out=in9load0);
+        Nand(a=dffout0X9, b=nload0, out=out0X9nload0);
+        Nand(a=in9load0,   b=out0X9nload0,  out=in9load0out0X9nload0);
+        DFF(in=in9load0out0X9nload0, out = dffout0X9, out=out0X9);
+        
+        Nand(a=in[10],  b=load0,  out=in10load0);
+        Nand(a=dffout0X10, b=nload0, out=out0X10nload0);
+        Nand(a=in10load0,   b=out0X10nload0,  out=in10load0out0X10nload0);
+        DFF(in=in10load0out0X10nload0, out = dffout0X10, out=out0X10);
+        
+        Nand(a=in[11],  b=load0,  out=in11load0);
+        Nand(a=dffout0X11, b=nload0, out=out0X11nload0);
+        Nand(a=in11load0,   b=out0X11nload0,  out=in11load0out0X11nload0);
+        DFF(in=in11load0out0X11nload0, out = dffout0X11, out=out0X11);
+        
+        Nand(a=in[12],  b=load0,  out=in12load0);
+        Nand(a=dffout0X12, b=nload0, out=out0X12nload0);
+        Nand(a=in12load0,   b=out0X12nload0,  out=in12load0out0X12nload0);
+        DFF(in=in12load0out0X12nload0, out = dffout0X12, out=out0X12);
+        
+        Nand(a=in[13],  b=load0,  out=in13load0);
+        Nand(a=dffout0X13, b=nload0, out=out0X13nload0);
+        Nand(a=in13load0,   b=out0X13nload0,  out=in13load0out0X13nload0);
+        DFF(in=in13load0out0X13nload0, out = dffout0X13, out=out0X13);
+        
+        Nand(a=in[14],  b=load0,  out=in14load0);
+        Nand(a=dffout0X14, b=nload0, out=out0X14nload0);
+        Nand(a=in14load0,   b=out0X14nload0,  out=in14load0out0X14nload0);
+        DFF(in=in14load0out0X14nload0, out = dffout0X14, out=out0X14);
+        
+        Nand(a=in[15],  b=load0,  out=in15load0);
+        Nand(a=dffout0X15, b=nload0, out=out0X15nload0);
+        Nand(a=in15load0,   b=out0X15nload0,  out=in15load0out0X15nload0);
+        DFF(in=in15load0out0X15nload0, out = dffout0X15, out=out0X15);
+        
+        Nand(a=in[0],  b=load1,  out=in0load1);
+        Nand(a=dffout1X0, b=nload1, out=out1X0nload1);
+        Nand(a=in0load1,   b=out1X0nload1,  out=in0load1out1X0nload1);
+        DFF(in=in0load1out1X0nload1, out = dffout1X0, out=out1X0);
+        
+        Nand(a=in[1],  b=load1,  out=in1load1);
+        Nand(a=dffout1X1, b=nload1, out=out1X1nload1);
+        Nand(a=in1load1,   b=out1X1nload1,  out=in1load1out1X1nload1);
+        DFF(in=in1load1out1X1nload1, out = dffout1X1, out=out1X1);
+        
+        Nand(a=in[2],  b=load1,  out=in2load1);
+        Nand(a=dffout1X2, b=nload1, out=out1X2nload1);
+        Nand(a=in2load1,   b=out1X2nload1,  out=in2load1out1X2nload1);
+        DFF(in=in2load1out1X2nload1, out = dffout1X2, out=out1X2);
+        
+        Nand(a=in[3],  b=load1,  out=in3load1);
+        Nand(a=dffout1X3, b=nload1, out=out1X3nload1);
+        Nand(a=in3load1,   b=out1X3nload1,  out=in3load1out1X3nload1);
+        DFF(in=in3load1out1X3nload1, out = dffout1X3, out=out1X3);
+        
+        Nand(a=in[4],  b=load1,  out=in4load1);
+        Nand(a=dffout1X4, b=nload1, out=out1X4nload1);
+        Nand(a=in4load1,   b=out1X4nload1,  out=in4load1out1X4nload1);
+        DFF(in=in4load1out1X4nload1, out = dffout1X4, out=out1X4);
+        
+        Nand(a=in[5],  b=load1,  out=in5load1);
+        Nand(a=dffout1X5, b=nload1, out=out1X5nload1);
+        Nand(a=in5load1,   b=out1X5nload1,  out=in5load1out1X5nload1);
+        DFF(in=in5load1out1X5nload1, out = dffout1X5, out=out1X5);
+        
+        Nand(a=in[6],  b=load1,  out=in6load1);
+        Nand(a=dffout1X6, b=nload1, out=out1X6nload1);
+        Nand(a=in6load1,   b=out1X6nload1,  out=in6load1out1X6nload1);
+        DFF(in=in6load1out1X6nload1, out = dffout1X6, out=out1X6);
+        
+        Nand(a=in[7],  b=load1,  out=in7load1);
+        Nand(a=dffout1X7, b=nload1, out=out1X7nload1);
+        Nand(a=in7load1,   b=out1X7nload1,  out=in7load1out1X7nload1);
+        DFF(in=in7load1out1X7nload1, out = dffout1X7, out=out1X7);
+        
+        Nand(a=in[8],  b=load1,  out=in8load1);
+        Nand(a=dffout1X8, b=nload1, out=out1X8nload1);
+        Nand(a=in8load1,   b=out1X8nload1,  out=in8load1out1X8nload1);
+        DFF(in=in8load1out1X8nload1, out = dffout1X8, out=out1X8);
+        
+        Nand(a=in[9],  b=load1,  out=in9load1);
+        Nand(a=dffout1X9, b=nload1, out=out1X9nload1);
+        Nand(a=in9load1,   b=out1X9nload1,  out=in9load1out1X9nload1);
+        DFF(in=in9load1out1X9nload1, out = dffout1X9, out=out1X9);
+        
+        Nand(a=in[10],  b=load1,  out=in10load1);
+        Nand(a=dffout1X10, b=nload1, out=out1X10nload1);
+        Nand(a=in10load1,   b=out1X10nload1,  out=in10load1out1X10nload1);
+        DFF(in=in10load1out1X10nload1, out = dffout1X10, out=out1X10);
+        
+        Nand(a=in[11],  b=load1,  out=in11load1);
+        Nand(a=dffout1X11, b=nload1, out=out1X11nload1);
+        Nand(a=in11load1,   b=out1X11nload1,  out=in11load1out1X11nload1);
+        DFF(in=in11load1out1X11nload1, out = dffout1X11, out=out1X11);
+        
+        Nand(a=in[12],  b=load1,  out=in12load1);
+        Nand(a=dffout1X12, b=nload1, out=out1X12nload1);
+        Nand(a=in12load1,   b=out1X12nload1,  out=in12load1out1X12nload1);
+        DFF(in=in12load1out1X12nload1, out = dffout1X12, out=out1X12);
+        
+        Nand(a=in[13],  b=load1,  out=in13load1);
+        Nand(a=dffout1X13, b=nload1, out=out1X13nload1);
+        Nand(a=in13load1,   b=out1X13nload1,  out=in13load1out1X13nload1);
+        DFF(in=in13load1out1X13nload1, out = dffout1X13, out=out1X13);
+        
+        Nand(a=in[14],  b=load1,  out=in14load1);
+        Nand(a=dffout1X14, b=nload1, out=out1X14nload1);
+        Nand(a=in14load1,   b=out1X14nload1,  out=in14load1out1X14nload1);
+        DFF(in=in14load1out1X14nload1, out = dffout1X14, out=out1X14);
+        
+        Nand(a=in[15],  b=load1,  out=in15load1);
+        Nand(a=dffout1X15, b=nload1, out=out1X15nload1);
+        Nand(a=in15load1,   b=out1X15nload1,  out=in15load1out1X15nload1);
+        DFF(in=in15load1out1X15nload1, out = dffout1X15, out=out1X15);
+        
+        Nand(a=in[0],  b=load2,  out=in0load2);
+        Nand(a=dffout2X0, b=nload2, out=out2X0nload2);
+        Nand(a=in0load2,   b=out2X0nload2,  out=in0load2out2X0nload2);
+        DFF(in=in0load2out2X0nload2, out = dffout2X0, out=out2X0);
+        
+        Nand(a=in[1],  b=load2,  out=in1load2);
+        Nand(a=dffout2X1, b=nload2, out=out2X1nload2);
+        Nand(a=in1load2,   b=out2X1nload2,  out=in1load2out2X1nload2);
+        DFF(in=in1load2out2X1nload2, out = dffout2X1, out=out2X1);
+        
+        Nand(a=in[2],  b=load2,  out=in2load2);
+        Nand(a=dffout2X2, b=nload2, out=out2X2nload2);
+        Nand(a=in2load2,   b=out2X2nload2,  out=in2load2out2X2nload2);
+        DFF(in=in2load2out2X2nload2, out = dffout2X2, out=out2X2);
+        
+        Nand(a=in[3],  b=load2,  out=in3load2);
+        Nand(a=dffout2X3, b=nload2, out=out2X3nload2);
+        Nand(a=in3load2,   b=out2X3nload2,  out=in3load2out2X3nload2);
+        DFF(in=in3load2out2X3nload2, out = dffout2X3, out=out2X3);
+        
+        Nand(a=in[4],  b=load2,  out=in4load2);
+        Nand(a=dffout2X4, b=nload2, out=out2X4nload2);
+        Nand(a=in4load2,   b=out2X4nload2,  out=in4load2out2X4nload2);
+        DFF(in=in4load2out2X4nload2, out = dffout2X4, out=out2X4);
+        
+        Nand(a=in[5],  b=load2,  out=in5load2);
+        Nand(a=dffout2X5, b=nload2, out=out2X5nload2);
+        Nand(a=in5load2,   b=out2X5nload2,  out=in5load2out2X5nload2);
+        DFF(in=in5load2out2X5nload2, out = dffout2X5, out=out2X5);
+        
+        Nand(a=in[6],  b=load2,  out=in6load2);
+        Nand(a=dffout2X6, b=nload2, out=out2X6nload2);
+        Nand(a=in6load2,   b=out2X6nload2,  out=in6load2out2X6nload2);
+        DFF(in=in6load2out2X6nload2, out = dffout2X6, out=out2X6);
+        
+        Nand(a=in[7],  b=load2,  out=in7load2);
+        Nand(a=dffout2X7, b=nload2, out=out2X7nload2);
+        Nand(a=in7load2,   b=out2X7nload2,  out=in7load2out2X7nload2);
+        DFF(in=in7load2out2X7nload2, out = dffout2X7, out=out2X7);
+        
+        Nand(a=in[8],  b=load2,  out=in8load2);
+        Nand(a=dffout2X8, b=nload2, out=out2X8nload2);
+        Nand(a=in8load2,   b=out2X8nload2,  out=in8load2out2X8nload2);
+        DFF(in=in8load2out2X8nload2, out = dffout2X8, out=out2X8);
+        
+        Nand(a=in[9],  b=load2,  out=in9load2);
+        Nand(a=dffout2X9, b=nload2, out=out2X9nload2);
+        Nand(a=in9load2,   b=out2X9nload2,  out=in9load2out2X9nload2);
+        DFF(in=in9load2out2X9nload2, out = dffout2X9, out=out2X9);
+        
+        Nand(a=in[10],  b=load2,  out=in10load2);
+        Nand(a=dffout2X10, b=nload2, out=out2X10nload2);
+        Nand(a=in10load2,   b=out2X10nload2,  out=in10load2out2X10nload2);
+        DFF(in=in10load2out2X10nload2, out = dffout2X10, out=out2X10);
+        
+        Nand(a=in[11],  b=load2,  out=in11load2);
+        Nand(a=dffout2X11, b=nload2, out=out2X11nload2);
+        Nand(a=in11load2,   b=out2X11nload2,  out=in11load2out2X11nload2);
+        DFF(in=in11load2out2X11nload2, out = dffout2X11, out=out2X11);
+        
+        Nand(a=in[12],  b=load2,  out=in12load2);
+        Nand(a=dffout2X12, b=nload2, out=out2X12nload2);
+        Nand(a=in12load2,   b=out2X12nload2,  out=in12load2out2X12nload2);
+        DFF(in=in12load2out2X12nload2, out = dffout2X12, out=out2X12);
+        
+        Nand(a=in[13],  b=load2,  out=in13load2);
+        Nand(a=dffout2X13, b=nload2, out=out2X13nload2);
+        Nand(a=in13load2,   b=out2X13nload2,  out=in13load2out2X13nload2);
+        DFF(in=in13load2out2X13nload2, out = dffout2X13, out=out2X13);
+        
+        Nand(a=in[14],  b=load2,  out=in14load2);
+        Nand(a=dffout2X14, b=nload2, out=out2X14nload2);
+        Nand(a=in14load2,   b=out2X14nload2,  out=in14load2out2X14nload2);
+        DFF(in=in14load2out2X14nload2, out = dffout2X14, out=out2X14);
+        
+        Nand(a=in[15],  b=load2,  out=in15load2);
+        Nand(a=dffout2X15, b=nload2, out=out2X15nload2);
+        Nand(a=in15load2,   b=out2X15nload2,  out=in15load2out2X15nload2);
+        DFF(in=in15load2out2X15nload2, out = dffout2X15, out=out2X15);
+        
+        Nand(a=in[0],  b=load3,  out=in0load3);
+        Nand(a=dffout3X0, b=nload3, out=out3X0nload3);
+        Nand(a=in0load3,   b=out3X0nload3,  out=in0load3out3X0nload3);
+        DFF(in=in0load3out3X0nload3, out = dffout3X0, out=out3X0);
+        
+        Nand(a=in[1],  b=load3,  out=in1load3);
+        Nand(a=dffout3X1, b=nload3, out=out3X1nload3);
+        Nand(a=in1load3,   b=out3X1nload3,  out=in1load3out3X1nload3);
+        DFF(in=in1load3out3X1nload3, out = dffout3X1, out=out3X1);
+        
+        Nand(a=in[2],  b=load3,  out=in2load3);
+        Nand(a=dffout3X2, b=nload3, out=out3X2nload3);
+        Nand(a=in2load3,   b=out3X2nload3,  out=in2load3out3X2nload3);
+        DFF(in=in2load3out3X2nload3, out = dffout3X2, out=out3X2);
+        
+        Nand(a=in[3],  b=load3,  out=in3load3);
+        Nand(a=dffout3X3, b=nload3, out=out3X3nload3);
+        Nand(a=in3load3,   b=out3X3nload3,  out=in3load3out3X3nload3);
+        DFF(in=in3load3out3X3nload3, out = dffout3X3, out=out3X3);
+        
+        Nand(a=in[4],  b=load3,  out=in4load3);
+        Nand(a=dffout3X4, b=nload3, out=out3X4nload3);
+        Nand(a=in4load3,   b=out3X4nload3,  out=in4load3out3X4nload3);
+        DFF(in=in4load3out3X4nload3, out = dffout3X4, out=out3X4);
+        
+        Nand(a=in[5],  b=load3,  out=in5load3);
+        Nand(a=dffout3X5, b=nload3, out=out3X5nload3);
+        Nand(a=in5load3,   b=out3X5nload3,  out=in5load3out3X5nload3);
+        DFF(in=in5load3out3X5nload3, out = dffout3X5, out=out3X5);
+        
+        Nand(a=in[6],  b=load3,  out=in6load3);
+        Nand(a=dffout3X6, b=nload3, out=out3X6nload3);
+        Nand(a=in6load3,   b=out3X6nload3,  out=in6load3out3X6nload3);
+        DFF(in=in6load3out3X6nload3, out = dffout3X6, out=out3X6);
+        
+        Nand(a=in[7],  b=load3,  out=in7load3);
+        Nand(a=dffout3X7, b=nload3, out=out3X7nload3);
+        Nand(a=in7load3,   b=out3X7nload3,  out=in7load3out3X7nload3);
+        DFF(in=in7load3out3X7nload3, out = dffout3X7, out=out3X7);
+        
+        Nand(a=in[8],  b=load3,  out=in8load3);
+        Nand(a=dffout3X8, b=nload3, out=out3X8nload3);
+        Nand(a=in8load3,   b=out3X8nload3,  out=in8load3out3X8nload3);
+        DFF(in=in8load3out3X8nload3, out = dffout3X8, out=out3X8);
+        
+        Nand(a=in[9],  b=load3,  out=in9load3);
+        Nand(a=dffout3X9, b=nload3, out=out3X9nload3);
+        Nand(a=in9load3,   b=out3X9nload3,  out=in9load3out3X9nload3);
+        DFF(in=in9load3out3X9nload3, out = dffout3X9, out=out3X9);
+        
+        Nand(a=in[10],  b=load3,  out=in10load3);
+        Nand(a=dffout3X10, b=nload3, out=out3X10nload3);
+        Nand(a=in10load3,   b=out3X10nload3,  out=in10load3out3X10nload3);
+        DFF(in=in10load3out3X10nload3, out = dffout3X10, out=out3X10);
+        
+        Nand(a=in[11],  b=load3,  out=in11load3);
+        Nand(a=dffout3X11, b=nload3, out=out3X11nload3);
+        Nand(a=in11load3,   b=out3X11nload3,  out=in11load3out3X11nload3);
+        DFF(in=in11load3out3X11nload3, out = dffout3X11, out=out3X11);
+        
+        Nand(a=in[12],  b=load3,  out=in12load3);
+        Nand(a=dffout3X12, b=nload3, out=out3X12nload3);
+        Nand(a=in12load3,   b=out3X12nload3,  out=in12load3out3X12nload3);
+        DFF(in=in12load3out3X12nload3, out = dffout3X12, out=out3X12);
+        
+        Nand(a=in[13],  b=load3,  out=in13load3);
+        Nand(a=dffout3X13, b=nload3, out=out3X13nload3);
+        Nand(a=in13load3,   b=out3X13nload3,  out=in13load3out3X13nload3);
+        DFF(in=in13load3out3X13nload3, out = dffout3X13, out=out3X13);
+        
+        Nand(a=in[14],  b=load3,  out=in14load3);
+        Nand(a=dffout3X14, b=nload3, out=out3X14nload3);
+        Nand(a=in14load3,   b=out3X14nload3,  out=in14load3out3X14nload3);
+        DFF(in=in14load3out3X14nload3, out = dffout3X14, out=out3X14);
+        
+        Nand(a=in[15],  b=load3,  out=in15load3);
+        Nand(a=dffout3X15, b=nload3, out=out3X15nload3);
+        Nand(a=in15load3,   b=out3X15nload3,  out=in15load3out3X15nload3);
+        DFF(in=in15load3out3X15nload3, out = dffout3X15, out=out3X15);
+        
+        Nand(a=in[0],  b=load4,  out=in0load4);
+        Nand(a=dffout4X0, b=nload4, out=out4X0nload4);
+        Nand(a=in0load4,   b=out4X0nload4,  out=in0load4out4X0nload4);
+        DFF(in=in0load4out4X0nload4, out = dffout4X0, out=out4X0);
+        
+        Nand(a=in[1],  b=load4,  out=in1load4);
+        Nand(a=dffout4X1, b=nload4, out=out4X1nload4);
+        Nand(a=in1load4,   b=out4X1nload4,  out=in1load4out4X1nload4);
+        DFF(in=in1load4out4X1nload4, out = dffout4X1, out=out4X1);
+        
+        Nand(a=in[2],  b=load4,  out=in2load4);
+        Nand(a=dffout4X2, b=nload4, out=out4X2nload4);
+        Nand(a=in2load4,   b=out4X2nload4,  out=in2load4out4X2nload4);
+        DFF(in=in2load4out4X2nload4, out = dffout4X2, out=out4X2);
+        
+        Nand(a=in[3],  b=load4,  out=in3load4);
+        Nand(a=dffout4X3, b=nload4, out=out4X3nload4);
+        Nand(a=in3load4,   b=out4X3nload4,  out=in3load4out4X3nload4);
+        DFF(in=in3load4out4X3nload4, out = dffout4X3, out=out4X3);
+        
+        Nand(a=in[4],  b=load4,  out=in4load4);
+        Nand(a=dffout4X4, b=nload4, out=out4X4nload4);
+        Nand(a=in4load4,   b=out4X4nload4,  out=in4load4out4X4nload4);
+        DFF(in=in4load4out4X4nload4, out = dffout4X4, out=out4X4);
+        
+        Nand(a=in[5],  b=load4,  out=in5load4);
+        Nand(a=dffout4X5, b=nload4, out=out4X5nload4);
+        Nand(a=in5load4,   b=out4X5nload4,  out=in5load4out4X5nload4);
+        DFF(in=in5load4out4X5nload4, out = dffout4X5, out=out4X5);
+        
+        Nand(a=in[6],  b=load4,  out=in6load4);
+        Nand(a=dffout4X6, b=nload4, out=out4X6nload4);
+        Nand(a=in6load4,   b=out4X6nload4,  out=in6load4out4X6nload4);
+        DFF(in=in6load4out4X6nload4, out = dffout4X6, out=out4X6);
+        
+        Nand(a=in[7],  b=load4,  out=in7load4);
+        Nand(a=dffout4X7, b=nload4, out=out4X7nload4);
+        Nand(a=in7load4,   b=out4X7nload4,  out=in7load4out4X7nload4);
+        DFF(in=in7load4out4X7nload4, out = dffout4X7, out=out4X7);
+        
+        Nand(a=in[8],  b=load4,  out=in8load4);
+        Nand(a=dffout4X8, b=nload4, out=out4X8nload4);
+        Nand(a=in8load4,   b=out4X8nload4,  out=in8load4out4X8nload4);
+        DFF(in=in8load4out4X8nload4, out = dffout4X8, out=out4X8);
+        
+        Nand(a=in[9],  b=load4,  out=in9load4);
+        Nand(a=dffout4X9, b=nload4, out=out4X9nload4);
+        Nand(a=in9load4,   b=out4X9nload4,  out=in9load4out4X9nload4);
+        DFF(in=in9load4out4X9nload4, out = dffout4X9, out=out4X9);
+        
+        Nand(a=in[10],  b=load4,  out=in10load4);
+        Nand(a=dffout4X10, b=nload4, out=out4X10nload4);
+        Nand(a=in10load4,   b=out4X10nload4,  out=in10load4out4X10nload4);
+        DFF(in=in10load4out4X10nload4, out = dffout4X10, out=out4X10);
+        
+        Nand(a=in[11],  b=load4,  out=in11load4);
+        Nand(a=dffout4X11, b=nload4, out=out4X11nload4);
+        Nand(a=in11load4,   b=out4X11nload4,  out=in11load4out4X11nload4);
+        DFF(in=in11load4out4X11nload4, out = dffout4X11, out=out4X11);
+        
+        Nand(a=in[12],  b=load4,  out=in12load4);
+        Nand(a=dffout4X12, b=nload4, out=out4X12nload4);
+        Nand(a=in12load4,   b=out4X12nload4,  out=in12load4out4X12nload4);
+        DFF(in=in12load4out4X12nload4, out = dffout4X12, out=out4X12);
+        
+        Nand(a=in[13],  b=load4,  out=in13load4);
+        Nand(a=dffout4X13, b=nload4, out=out4X13nload4);
+        Nand(a=in13load4,   b=out4X13nload4,  out=in13load4out4X13nload4);
+        DFF(in=in13load4out4X13nload4, out = dffout4X13, out=out4X13);
+        
+        Nand(a=in[14],  b=load4,  out=in14load4);
+        Nand(a=dffout4X14, b=nload4, out=out4X14nload4);
+        Nand(a=in14load4,   b=out4X14nload4,  out=in14load4out4X14nload4);
+        DFF(in=in14load4out4X14nload4, out = dffout4X14, out=out4X14);
+        
+        Nand(a=in[15],  b=load4,  out=in15load4);
+        Nand(a=dffout4X15, b=nload4, out=out4X15nload4);
+        Nand(a=in15load4,   b=out4X15nload4,  out=in15load4out4X15nload4);
+        DFF(in=in15load4out4X15nload4, out = dffout4X15, out=out4X15);
+        
+        Nand(a=in[0],  b=load5,  out=in0load5);
+        Nand(a=dffout5X0, b=nload5, out=out5X0nload5);
+        Nand(a=in0load5,   b=out5X0nload5,  out=in0load5out5X0nload5);
+        DFF(in=in0load5out5X0nload5, out = dffout5X0, out=out5X0);
+        
+        Nand(a=in[1],  b=load5,  out=in1load5);
+        Nand(a=dffout5X1, b=nload5, out=out5X1nload5);
+        Nand(a=in1load5,   b=out5X1nload5,  out=in1load5out5X1nload5);
+        DFF(in=in1load5out5X1nload5, out = dffout5X1, out=out5X1);
+        
+        Nand(a=in[2],  b=load5,  out=in2load5);
+        Nand(a=dffout5X2, b=nload5, out=out5X2nload5);
+        Nand(a=in2load5,   b=out5X2nload5,  out=in2load5out5X2nload5);
+        DFF(in=in2load5out5X2nload5, out = dffout5X2, out=out5X2);
+        
+        Nand(a=in[3],  b=load5,  out=in3load5);
+        Nand(a=dffout5X3, b=nload5, out=out5X3nload5);
+        Nand(a=in3load5,   b=out5X3nload5,  out=in3load5out5X3nload5);
+        DFF(in=in3load5out5X3nload5, out = dffout5X3, out=out5X3);
+        
+        Nand(a=in[4],  b=load5,  out=in4load5);
+        Nand(a=dffout5X4, b=nload5, out=out5X4nload5);
+        Nand(a=in4load5,   b=out5X4nload5,  out=in4load5out5X4nload5);
+        DFF(in=in4load5out5X4nload5, out = dffout5X4, out=out5X4);
+        
+        Nand(a=in[5],  b=load5,  out=in5load5);
+        Nand(a=dffout5X5, b=nload5, out=out5X5nload5);
+        Nand(a=in5load5,   b=out5X5nload5,  out=in5load5out5X5nload5);
+        DFF(in=in5load5out5X5nload5, out = dffout5X5, out=out5X5);
+        
+        Nand(a=in[6],  b=load5,  out=in6load5);
+        Nand(a=dffout5X6, b=nload5, out=out5X6nload5);
+        Nand(a=in6load5,   b=out5X6nload5,  out=in6load5out5X6nload5);
+        DFF(in=in6load5out5X6nload5, out = dffout5X6, out=out5X6);
+        
+        Nand(a=in[7],  b=load5,  out=in7load5);
+        Nand(a=dffout5X7, b=nload5, out=out5X7nload5);
+        Nand(a=in7load5,   b=out5X7nload5,  out=in7load5out5X7nload5);
+        DFF(in=in7load5out5X7nload5, out = dffout5X7, out=out5X7);
+        
+        Nand(a=in[8],  b=load5,  out=in8load5);
+        Nand(a=dffout5X8, b=nload5, out=out5X8nload5);
+        Nand(a=in8load5,   b=out5X8nload5,  out=in8load5out5X8nload5);
+        DFF(in=in8load5out5X8nload5, out = dffout5X8, out=out5X8);
+        
+        Nand(a=in[9],  b=load5,  out=in9load5);
+        Nand(a=dffout5X9, b=nload5, out=out5X9nload5);
+        Nand(a=in9load5,   b=out5X9nload5,  out=in9load5out5X9nload5);
+        DFF(in=in9load5out5X9nload5, out = dffout5X9, out=out5X9);
+        
+        Nand(a=in[10],  b=load5,  out=in10load5);
+        Nand(a=dffout5X10, b=nload5, out=out5X10nload5);
+        Nand(a=in10load5,   b=out5X10nload5,  out=in10load5out5X10nload5);
+        DFF(in=in10load5out5X10nload5, out = dffout5X10, out=out5X10);
+        
+        Nand(a=in[11],  b=load5,  out=in11load5);
+        Nand(a=dffout5X11, b=nload5, out=out5X11nload5);
+        Nand(a=in11load5,   b=out5X11nload5,  out=in11load5out5X11nload5);
+        DFF(in=in11load5out5X11nload5, out = dffout5X11, out=out5X11);
+        
+        Nand(a=in[12],  b=load5,  out=in12load5);
+        Nand(a=dffout5X12, b=nload5, out=out5X12nload5);
+        Nand(a=in12load5,   b=out5X12nload5,  out=in12load5out5X12nload5);
+        DFF(in=in12load5out5X12nload5, out = dffout5X12, out=out5X12);
+        
+        Nand(a=in[13],  b=load5,  out=in13load5);
+        Nand(a=dffout5X13, b=nload5, out=out5X13nload5);
+        Nand(a=in13load5,   b=out5X13nload5,  out=in13load5out5X13nload5);
+        DFF(in=in13load5out5X13nload5, out = dffout5X13, out=out5X13);
+        
+        Nand(a=in[14],  b=load5,  out=in14load5);
+        Nand(a=dffout5X14, b=nload5, out=out5X14nload5);
+        Nand(a=in14load5,   b=out5X14nload5,  out=in14load5out5X14nload5);
+        DFF(in=in14load5out5X14nload5, out = dffout5X14, out=out5X14);
+        
+        Nand(a=in[15],  b=load5,  out=in15load5);
+        Nand(a=dffout5X15, b=nload5, out=out5X15nload5);
+        Nand(a=in15load5,   b=out5X15nload5,  out=in15load5out5X15nload5);
+        DFF(in=in15load5out5X15nload5, out = dffout5X15, out=out5X15);
+        
+        Nand(a=in[0],  b=load6,  out=in0load6);
+        Nand(a=dffout6X0, b=nload6, out=out6X0nload6);
+        Nand(a=in0load6,   b=out6X0nload6,  out=in0load6out6X0nload6);
+        DFF(in=in0load6out6X0nload6, out = dffout6X0, out=out6X0);
+        
+        Nand(a=in[1],  b=load6,  out=in1load6);
+        Nand(a=dffout6X1, b=nload6, out=out6X1nload6);
+        Nand(a=in1load6,   b=out6X1nload6,  out=in1load6out6X1nload6);
+        DFF(in=in1load6out6X1nload6, out = dffout6X1, out=out6X1);
+        
+        Nand(a=in[2],  b=load6,  out=in2load6);
+        Nand(a=dffout6X2, b=nload6, out=out6X2nload6);
+        Nand(a=in2load6,   b=out6X2nload6,  out=in2load6out6X2nload6);
+        DFF(in=in2load6out6X2nload6, out = dffout6X2, out=out6X2);
+        
+        Nand(a=in[3],  b=load6,  out=in3load6);
+        Nand(a=dffout6X3, b=nload6, out=out6X3nload6);
+        Nand(a=in3load6,   b=out6X3nload6,  out=in3load6out6X3nload6);
+        DFF(in=in3load6out6X3nload6, out = dffout6X3, out=out6X3);
+        
+        Nand(a=in[4],  b=load6,  out=in4load6);
+        Nand(a=dffout6X4, b=nload6, out=out6X4nload6);
+        Nand(a=in4load6,   b=out6X4nload6,  out=in4load6out6X4nload6);
+        DFF(in=in4load6out6X4nload6, out = dffout6X4, out=out6X4);
+        
+        Nand(a=in[5],  b=load6,  out=in5load6);
+        Nand(a=dffout6X5, b=nload6, out=out6X5nload6);
+        Nand(a=in5load6,   b=out6X5nload6,  out=in5load6out6X5nload6);
+        DFF(in=in5load6out6X5nload6, out = dffout6X5, out=out6X5);
+        
+        Nand(a=in[6],  b=load6,  out=in6load6);
+        Nand(a=dffout6X6, b=nload6, out=out6X6nload6);
+        Nand(a=in6load6,   b=out6X6nload6,  out=in6load6out6X6nload6);
+        DFF(in=in6load6out6X6nload6, out = dffout6X6, out=out6X6);
+        
+        Nand(a=in[7],  b=load6,  out=in7load6);
+        Nand(a=dffout6X7, b=nload6, out=out6X7nload6);
+        Nand(a=in7load6,   b=out6X7nload6,  out=in7load6out6X7nload6);
+        DFF(in=in7load6out6X7nload6, out = dffout6X7, out=out6X7);
+        
+        Nand(a=in[8],  b=load6,  out=in8load6);
+        Nand(a=dffout6X8, b=nload6, out=out6X8nload6);
+        Nand(a=in8load6,   b=out6X8nload6,  out=in8load6out6X8nload6);
+        DFF(in=in8load6out6X8nload6, out = dffout6X8, out=out6X8);
+        
+        Nand(a=in[9],  b=load6,  out=in9load6);
+        Nand(a=dffout6X9, b=nload6, out=out6X9nload6);
+        Nand(a=in9load6,   b=out6X9nload6,  out=in9load6out6X9nload6);
+        DFF(in=in9load6out6X9nload6, out = dffout6X9, out=out6X9);
+        
+        Nand(a=in[10],  b=load6,  out=in10load6);
+        Nand(a=dffout6X10, b=nload6, out=out6X10nload6);
+        Nand(a=in10load6,   b=out6X10nload6,  out=in10load6out6X10nload6);
+        DFF(in=in10load6out6X10nload6, out = dffout6X10, out=out6X10);
+        
+        Nand(a=in[11],  b=load6,  out=in11load6);
+        Nand(a=dffout6X11, b=nload6, out=out6X11nload6);
+        Nand(a=in11load6,   b=out6X11nload6,  out=in11load6out6X11nload6);
+        DFF(in=in11load6out6X11nload6, out = dffout6X11, out=out6X11);
+        
+        Nand(a=in[12],  b=load6,  out=in12load6);
+        Nand(a=dffout6X12, b=nload6, out=out6X12nload6);
+        Nand(a=in12load6,   b=out6X12nload6,  out=in12load6out6X12nload6);
+        DFF(in=in12load6out6X12nload6, out = dffout6X12, out=out6X12);
+        
+        Nand(a=in[13],  b=load6,  out=in13load6);
+        Nand(a=dffout6X13, b=nload6, out=out6X13nload6);
+        Nand(a=in13load6,   b=out6X13nload6,  out=in13load6out6X13nload6);
+        DFF(in=in13load6out6X13nload6, out = dffout6X13, out=out6X13);
+        
+        Nand(a=in[14],  b=load6,  out=in14load6);
+        Nand(a=dffout6X14, b=nload6, out=out6X14nload6);
+        Nand(a=in14load6,   b=out6X14nload6,  out=in14load6out6X14nload6);
+        DFF(in=in14load6out6X14nload6, out = dffout6X14, out=out6X14);
+        
+        Nand(a=in[15],  b=load6,  out=in15load6);
+        Nand(a=dffout6X15, b=nload6, out=out6X15nload6);
+        Nand(a=in15load6,   b=out6X15nload6,  out=in15load6out6X15nload6);
+        DFF(in=in15load6out6X15nload6, out = dffout6X15, out=out6X15);
+        
+        Nand(a=in[0],  b=load7,  out=in0load7);
+        Nand(a=dffout7X0, b=nload7, out=out7X0nload7);
+        Nand(a=in0load7,   b=out7X0nload7,  out=in0load7out7X0nload7);
+        DFF(in=in0load7out7X0nload7, out = dffout7X0, out=out7X0);
+        
+        Nand(a=in[1],  b=load7,  out=in1load7);
+        Nand(a=dffout7X1, b=nload7, out=out7X1nload7);
+        Nand(a=in1load7,   b=out7X1nload7,  out=in1load7out7X1nload7);
+        DFF(in=in1load7out7X1nload7, out = dffout7X1, out=out7X1);
+        
+        Nand(a=in[2],  b=load7,  out=in2load7);
+        Nand(a=dffout7X2, b=nload7, out=out7X2nload7);
+        Nand(a=in2load7,   b=out7X2nload7,  out=in2load7out7X2nload7);
+        DFF(in=in2load7out7X2nload7, out = dffout7X2, out=out7X2);
+        
+        Nand(a=in[3],  b=load7,  out=in3load7);
+        Nand(a=dffout7X3, b=nload7, out=out7X3nload7);
+        Nand(a=in3load7,   b=out7X3nload7,  out=in3load7out7X3nload7);
+        DFF(in=in3load7out7X3nload7, out = dffout7X3, out=out7X3);
+        
+        Nand(a=in[4],  b=load7,  out=in4load7);
+        Nand(a=dffout7X4, b=nload7, out=out7X4nload7);
+        Nand(a=in4load7,   b=out7X4nload7,  out=in4load7out7X4nload7);
+        DFF(in=in4load7out7X4nload7, out = dffout7X4, out=out7X4);
+        
+        Nand(a=in[5],  b=load7,  out=in5load7);
+        Nand(a=dffout7X5, b=nload7, out=out7X5nload7);
+        Nand(a=in5load7,   b=out7X5nload7,  out=in5load7out7X5nload7);
+        DFF(in=in5load7out7X5nload7, out = dffout7X5, out=out7X5);
+        
+        Nand(a=in[6],  b=load7,  out=in6load7);
+        Nand(a=dffout7X6, b=nload7, out=out7X6nload7);
+        Nand(a=in6load7,   b=out7X6nload7,  out=in6load7out7X6nload7);
+        DFF(in=in6load7out7X6nload7, out = dffout7X6, out=out7X6);
+        
+        Nand(a=in[7],  b=load7,  out=in7load7);
+        Nand(a=dffout7X7, b=nload7, out=out7X7nload7);
+        Nand(a=in7load7,   b=out7X7nload7,  out=in7load7out7X7nload7);
+        DFF(in=in7load7out7X7nload7, out = dffout7X7, out=out7X7);
+        
+        Nand(a=in[8],  b=load7,  out=in8load7);
+        Nand(a=dffout7X8, b=nload7, out=out7X8nload7);
+        Nand(a=in8load7,   b=out7X8nload7,  out=in8load7out7X8nload7);
+        DFF(in=in8load7out7X8nload7, out = dffout7X8, out=out7X8);
+        
+        Nand(a=in[9],  b=load7,  out=in9load7);
+        Nand(a=dffout7X9, b=nload7, out=out7X9nload7);
+        Nand(a=in9load7,   b=out7X9nload7,  out=in9load7out7X9nload7);
+        DFF(in=in9load7out7X9nload7, out = dffout7X9, out=out7X9);
+        
+        Nand(a=in[10],  b=load7,  out=in10load7);
+        Nand(a=dffout7X10, b=nload7, out=out7X10nload7);
+        Nand(a=in10load7,   b=out7X10nload7,  out=in10load7out7X10nload7);
+        DFF(in=in10load7out7X10nload7, out = dffout7X10, out=out7X10);
+        
+        Nand(a=in[11],  b=load7,  out=in11load7);
+        Nand(a=dffout7X11, b=nload7, out=out7X11nload7);
+        Nand(a=in11load7,   b=out7X11nload7,  out=in11load7out7X11nload7);
+        DFF(in=in11load7out7X11nload7, out = dffout7X11, out=out7X11);
+        
+        Nand(a=in[12],  b=load7,  out=in12load7);
+        Nand(a=dffout7X12, b=nload7, out=out7X12nload7);
+        Nand(a=in12load7,   b=out7X12nload7,  out=in12load7out7X12nload7);
+        DFF(in=in12load7out7X12nload7, out = dffout7X12, out=out7X12);
+        
+        Nand(a=in[13],  b=load7,  out=in13load7);
+        Nand(a=dffout7X13, b=nload7, out=out7X13nload7);
+        Nand(a=in13load7,   b=out7X13nload7,  out=in13load7out7X13nload7);
+        DFF(in=in13load7out7X13nload7, out = dffout7X13, out=out7X13);
+        
+        Nand(a=in[14],  b=load7,  out=in14load7);
+        Nand(a=dffout7X14, b=nload7, out=out7X14nload7);
+        Nand(a=in14load7,   b=out7X14nload7,  out=in14load7out7X14nload7);
+        DFF(in=in14load7out7X14nload7, out = dffout7X14, out=out7X14);
+        
+        Nand(a=in[15],  b=load7,  out=in15load7);
+        Nand(a=dffout7X15, b=nload7, out=out7X15nload7);
+        Nand(a=in15load7,   b=out7X15nload7,  out=in15load7out7X15nload7);
+        DFF(in=in15load7out7X15nload7, out = dffout7X15, out=out7X15);
+        
+        Nand (a = out1X0, b = address[0], out = out1l0);
+        Nand (a = out0X0, b = ns0, out = out2l0);
+        Nand (a = out3X0, b = address[0], out = out3l0);
+        Nand (a = out2X0, b = ns0, out = out4l0);
+        Nand (a = out5X0, b = address[0], out = out5l0);
+        Nand (a = out4X0, b = ns0, out = out6l0);
+        Nand (a = out7X0, b = address[0], out = out7l0);
+        Nand (a = out6X0, b = ns0, out = out8l0);
+        Nand (a = out1l0, b = out2l0, out = out9l0);
+        Nand (a = out3l0, b = out4l0, out = out10l0);
+        Nand (a = out5l0, b = out6l0, out = out11l0);
+        Nand (a = out7l0, b = out8l0, out = out12l0);
+        Nand (a = out9l0, b = ns1, out = out13l0);
+        Nand (a = out10l0, b = address[1], out = out14l0);
+        Nand (a = out11l0, b = ns1, out = out15l0);
+        Nand (a = out12l0, b = address[1], out = out16l0);
+        Nand (a = out13l0, b = out14l0, out = out17l0);
+        Nand (a = out15l0, b = out16l0, out = out18l0);
+        Nand (a = out17l0, b = ns2, out = out19l0);
+        Nand (a = out18l0, b = address[2], out = out20l0);
+        Nand (a = out19l0, b = out20l0, out = out[0]);
+        
+        Nand (a = out1X1, b = address[0], out = out1l1);
+        Nand (a = out0X1, b = ns1, out = out2l1);
+        Nand (a = out3X1, b = address[0], out = out3l1);
+        Nand (a = out2X1, b = ns1, out = out4l1);
+        Nand (a = out5X1, b = address[0], out = out5l1);
+        Nand (a = out4X1, b = ns1, out = out6l1);
+        Nand (a = out7X1, b = address[0], out = out7l1);
+        Nand (a = out6X1, b = ns1, out = out8l1);
+        Nand (a = out1l1, b = out2l1, out = out9l1);
+        Nand (a = out3l1, b = out4l1, out = out10l1);
+        Nand (a = out5l1, b = out6l1, out = out11l1);
+        Nand (a = out7l1, b = out8l1, out = out12l1);
+        Nand (a = out9l1, b = ns1, out = out13l1);
+        Nand (a = out10l1, b = address[1], out = out14l1);
+        Nand (a = out11l1, b = ns1, out = out15l1);
+        Nand (a = out12l1, b = address[1], out = out16l1);
+        Nand (a = out13l1, b = out14l1, out = out17l1);
+        Nand (a = out15l1, b = out16l1, out = out18l1);
+        Nand (a = out17l1, b = ns2, out = out19l1);
+        Nand (a = out18l1, b = address[2], out = out20l1);
+        Nand (a = out19l1, b = out20l1, out = out[1]);
+        
+        Nand (a = out1X2, b = address[0], out = out1l2);
+        Nand (a = out0X2, b = ns2, out = out2l2);
+        Nand (a = out3X2, b = address[0], out = out3l2);
+        Nand (a = out2X2, b = ns2, out = out4l2);
+        Nand (a = out5X2, b = address[0], out = out5l2);
+        Nand (a = out4X2, b = ns2, out = out6l2);
+        Nand (a = out7X2, b = address[0], out = out7l2);
+        Nand (a = out6X2, b = ns2, out = out8l2);
+        Nand (a = out1l2, b = out2l2, out = out9l2);
+        Nand (a = out3l2, b = out4l2, out = out10l2);
+        Nand (a = out5l2, b = out6l2, out = out11l2);
+        Nand (a = out7l2, b = out8l2, out = out12l2);
+        Nand (a = out9l2, b = ns1, out = out13l2);
+        Nand (a = out10l2, b = address[1], out = out14l2);
+        Nand (a = out11l2, b = ns1, out = out15l2);
+        Nand (a = out12l2, b = address[1], out = out16l2);
+        Nand (a = out13l2, b = out14l2, out = out17l2);
+        Nand (a = out15l2, b = out16l2, out = out18l2);
+        Nand (a = out17l2, b = ns2, out = out19l2);
+        Nand (a = out18l2, b = address[2], out = out20l2);
+        Nand (a = out19l2, b = out20l2, out = out[2]);
+        
+        Nand (a = out1X3, b = address[0], out = out1l3);
+        Nand (a = out0X3, b = ns3, out = out2l3);
+        Nand (a = out3X3, b = address[0], out = out3l3);
+        Nand (a = out2X3, b = ns3, out = out4l3);
+        Nand (a = out5X3, b = address[0], out = out5l3);
+        Nand (a = out4X3, b = ns3, out = out6l3);
+        Nand (a = out7X3, b = address[0], out = out7l3);
+        Nand (a = out6X3, b = ns3, out = out8l3);
+        Nand (a = out1l3, b = out2l3, out = out9l3);
+        Nand (a = out3l3, b = out4l3, out = out10l3);
+        Nand (a = out5l3, b = out6l3, out = out11l3);
+        Nand (a = out7l3, b = out8l3, out = out12l3);
+        Nand (a = out9l3, b = ns1, out = out13l3);
+        Nand (a = out10l3, b = address[1], out = out14l3);
+        Nand (a = out11l3, b = ns1, out = out15l3);
+        Nand (a = out12l3, b = address[1], out = out16l3);
+        Nand (a = out13l3, b = out14l3, out = out17l3);
+        Nand (a = out15l3, b = out16l3, out = out18l3);
+        Nand (a = out17l3, b = ns2, out = out19l3);
+        Nand (a = out18l3, b = address[2], out = out20l3);
+        Nand (a = out19l3, b = out20l3, out = out[3]);
+        
+        Nand (a = out1X4, b = address[0], out = out1l4);
+        Nand (a = out0X4, b = ns4, out = out2l4);
+        Nand (a = out3X4, b = address[0], out = out3l4);
+        Nand (a = out2X4, b = ns4, out = out4l4);
+        Nand (a = out5X4, b = address[0], out = out5l4);
+        Nand (a = out4X4, b = ns4, out = out6l4);
+        Nand (a = out7X4, b = address[0], out = out7l4);
+        Nand (a = out6X4, b = ns4, out = out8l4);
+        Nand (a = out1l4, b = out2l4, out = out9l4);
+        Nand (a = out3l4, b = out4l4, out = out10l4);
+        Nand (a = out5l4, b = out6l4, out = out11l4);
+        Nand (a = out7l4, b = out8l4, out = out12l4);
+        Nand (a = out9l4, b = ns1, out = out13l4);
+        Nand (a = out10l4, b = address[1], out = out14l4);
+        Nand (a = out11l4, b = ns1, out = out15l4);
+        Nand (a = out12l4, b = address[1], out = out16l4);
+        Nand (a = out13l4, b = out14l4, out = out17l4);
+        Nand (a = out15l4, b = out16l4, out = out18l4);
+        Nand (a = out17l4, b = ns2, out = out19l4);
+        Nand (a = out18l4, b = address[2], out = out20l4);
+        Nand (a = out19l4, b = out20l4, out = out[4]);
+        
+        Nand (a = out1X5, b = address[0], out = out1l5);
+        Nand (a = out0X5, b = ns5, out = out2l5);
+        Nand (a = out3X5, b = address[0], out = out3l5);
+        Nand (a = out2X5, b = ns5, out = out4l5);
+        Nand (a = out5X5, b = address[0], out = out5l5);
+        Nand (a = out4X5, b = ns5, out = out6l5);
+        Nand (a = out7X5, b = address[0], out = out7l5);
+        Nand (a = out6X5, b = ns5, out = out8l5);
+        Nand (a = out1l5, b = out2l5, out = out9l5);
+        Nand (a = out3l5, b = out4l5, out = out10l5);
+        Nand (a = out5l5, b = out6l5, out = out11l5);
+        Nand (a = out7l5, b = out8l5, out = out12l5);
+        Nand (a = out9l5, b = ns1, out = out13l5);
+        Nand (a = out10l5, b = address[1], out = out14l5);
+        Nand (a = out11l5, b = ns1, out = out15l5);
+        Nand (a = out12l5, b = address[1], out = out16l5);
+        Nand (a = out13l5, b = out14l5, out = out17l5);
+        Nand (a = out15l5, b = out16l5, out = out18l5);
+        Nand (a = out17l5, b = ns2, out = out19l5);
+        Nand (a = out18l5, b = address[2], out = out20l5);
+        Nand (a = out19l5, b = out20l5, out = out[5]);
+        
+        Nand (a = out1X6, b = address[0], out = out1l6);
+        Nand (a = out0X6, b = ns6, out = out2l6);
+        Nand (a = out3X6, b = address[0], out = out3l6);
+        Nand (a = out2X6, b = ns6, out = out4l6);
+        Nand (a = out5X6, b = address[0], out = out5l6);
+        Nand (a = out4X6, b = ns6, out = out6l6);
+        Nand (a = out7X6, b = address[0], out = out7l6);
+        Nand (a = out6X6, b = ns6, out = out8l6);
+        Nand (a = out1l6, b = out2l6, out = out9l6);
+        Nand (a = out3l6, b = out4l6, out = out10l6);
+        Nand (a = out5l6, b = out6l6, out = out11l6);
+        Nand (a = out7l6, b = out8l6, out = out12l6);
+        Nand (a = out9l6, b = ns1, out = out13l6);
+        Nand (a = out10l6, b = address[1], out = out14l6);
+        Nand (a = out11l6, b = ns1, out = out15l6);
+        Nand (a = out12l6, b = address[1], out = out16l6);
+        Nand (a = out13l6, b = out14l6, out = out17l6);
+        Nand (a = out15l6, b = out16l6, out = out18l6);
+        Nand (a = out17l6, b = ns2, out = out19l6);
+        Nand (a = out18l6, b = address[2], out = out20l6);
+        Nand (a = out19l6, b = out20l6, out = out[6]);
+        
+        Nand (a = out1X7, b = address[0], out = out1l7);
+        Nand (a = out0X7, b = ns7, out = out2l7);
+        Nand (a = out3X7, b = address[0], out = out3l7);
+        Nand (a = out2X7, b = ns7, out = out4l7);
+        Nand (a = out5X7, b = address[0], out = out5l7);
+        Nand (a = out4X7, b = ns7, out = out6l7);
+        Nand (a = out7X7, b = address[0], out = out7l7);
+        Nand (a = out6X7, b = ns7, out = out8l7);
+        Nand (a = out1l7, b = out2l7, out = out9l7);
+        Nand (a = out3l7, b = out4l7, out = out10l7);
+        Nand (a = out5l7, b = out6l7, out = out11l7);
+        Nand (a = out7l7, b = out8l7, out = out12l7);
+        Nand (a = out9l7, b = ns1, out = out13l7);
+        Nand (a = out10l7, b = address[1], out = out14l7);
+        Nand (a = out11l7, b = ns1, out = out15l7);
+        Nand (a = out12l7, b = address[1], out = out16l7);
+        Nand (a = out13l7, b = out14l7, out = out17l7);
+        Nand (a = out15l7, b = out16l7, out = out18l7);
+        Nand (a = out17l7, b = ns2, out = out19l7);
+        Nand (a = out18l7, b = address[2], out = out20l7);
+        Nand (a = out19l7, b = out20l7, out = out[7]);
+        
+        Nand (a = out1X8, b = address[0], out = out1l8);
+        Nand (a = out0X8, b = ns8, out = out2l8);
+        Nand (a = out3X8, b = address[0], out = out3l8);
+        Nand (a = out2X8, b = ns8, out = out4l8);
+        Nand (a = out5X8, b = address[0], out = out5l8);
+        Nand (a = out4X8, b = ns8, out = out6l8);
+        Nand (a = out7X8, b = address[0], out = out7l8);
+        Nand (a = out6X8, b = ns8, out = out8l8);
+        Nand (a = out1l8, b = out2l8, out = out9l8);
+        Nand (a = out3l8, b = out4l8, out = out10l8);
+        Nand (a = out5l8, b = out6l8, out = out11l8);
+        Nand (a = out7l8, b = out8l8, out = out12l8);
+        Nand (a = out9l8, b = ns1, out = out13l8);
+        Nand (a = out10l8, b = address[1], out = out14l8);
+        Nand (a = out11l8, b = ns1, out = out15l8);
+        Nand (a = out12l8, b = address[1], out = out16l8);
+        Nand (a = out13l8, b = out14l8, out = out17l8);
+        Nand (a = out15l8, b = out16l8, out = out18l8);
+        Nand (a = out17l8, b = ns2, out = out19l8);
+        Nand (a = out18l8, b = address[2], out = out20l8);
+        Nand (a = out19l8, b = out20l8, out = out[8]);
+        
+        Nand (a = out1X9, b = address[0], out = out1l9);
+        Nand (a = out0X9, b = ns9, out = out2l9);
+        Nand (a = out3X9, b = address[0], out = out3l9);
+        Nand (a = out2X9, b = ns9, out = out4l9);
+        Nand (a = out5X9, b = address[0], out = out5l9);
+        Nand (a = out4X9, b = ns9, out = out6l9);
+        Nand (a = out7X9, b = address[0], out = out7l9);
+        Nand (a = out6X9, b = ns9, out = out8l9);
+        Nand (a = out1l9, b = out2l9, out = out9l9);
+        Nand (a = out3l9, b = out4l9, out = out10l9);
+        Nand (a = out5l9, b = out6l9, out = out11l9);
+        Nand (a = out7l9, b = out8l9, out = out12l9);
+        Nand (a = out9l9, b = ns1, out = out13l9);
+        Nand (a = out10l9, b = address[1], out = out14l9);
+        Nand (a = out11l9, b = ns1, out = out15l9);
+        Nand (a = out12l9, b = address[1], out = out16l9);
+        Nand (a = out13l9, b = out14l9, out = out17l9);
+        Nand (a = out15l9, b = out16l9, out = out18l9);
+        Nand (a = out17l9, b = ns2, out = out19l9);
+        Nand (a = out18l9, b = address[2], out = out20l9);
+        Nand (a = out19l9, b = out20l9, out = out[9]);
+        
+        Nand (a = out1X10, b = address[0], out = out1l10);
+        Nand (a = out0X10, b = ns10, out = out2l10);
+        Nand (a = out3X10, b = address[0], out = out3l10);
+        Nand (a = out2X10, b = ns10, out = out4l10);
+        Nand (a = out5X10, b = address[0], out = out5l10);
+        Nand (a = out4X10, b = ns10, out = out6l10);
+        Nand (a = out7X10, b = address[0], out = out7l10);
+        Nand (a = out6X10, b = ns10, out = out8l10);
+        Nand (a = out1l10, b = out2l10, out = out9l10);
+        Nand (a = out3l10, b = out4l10, out = out10l10);
+        Nand (a = out5l10, b = out6l10, out = out11l10);
+        Nand (a = out7l10, b = out8l10, out = out12l10);
+        Nand (a = out9l10, b = ns1, out = out13l10);
+        Nand (a = out10l10, b = address[1], out = out14l10);
+        Nand (a = out11l10, b = ns1, out = out15l10);
+        Nand (a = out12l10, b = address[1], out = out16l10);
+        Nand (a = out13l10, b = out14l10, out = out17l10);
+        Nand (a = out15l10, b = out16l10, out = out18l10);
+        Nand (a = out17l10, b = ns2, out = out19l10);
+        Nand (a = out18l10, b = address[2], out = out20l10);
+        Nand (a = out19l10, b = out20l10, out = out[10]);
+        
+        Nand (a = out1X11, b = address[0], out = out1l11);
+        Nand (a = out0X11, b = ns11, out = out2l11);
+        Nand (a = out3X11, b = address[0], out = out3l11);
+        Nand (a = out2X11, b = ns11, out = out4l11);
+        Nand (a = out5X11, b = address[0], out = out5l11);
+        Nand (a = out4X11, b = ns11, out = out6l11);
+        Nand (a = out7X11, b = address[0], out = out7l11);
+        Nand (a = out6X11, b = ns11, out = out8l11);
+        Nand (a = out1l11, b = out2l11, out = out9l11);
+        Nand (a = out3l11, b = out4l11, out = out10l11);
+        Nand (a = out5l11, b = out6l11, out = out11l11);
+        Nand (a = out7l11, b = out8l11, out = out12l11);
+        Nand (a = out9l11, b = ns1, out = out13l11);
+        Nand (a = out10l11, b = address[1], out = out14l11);
+        Nand (a = out11l11, b = ns1, out = out15l11);
+        Nand (a = out12l11, b = address[1], out = out16l11);
+        Nand (a = out13l11, b = out14l11, out = out17l11);
+        Nand (a = out15l11, b = out16l11, out = out18l11);
+        Nand (a = out17l11, b = ns2, out = out19l11);
+        Nand (a = out18l11, b = address[2], out = out20l11);
+        Nand (a = out19l11, b = out20l11, out = out[11]);
+        
+        Nand (a = out1X12, b = address[0], out = out1l12);
+        Nand (a = out0X12, b = ns12, out = out2l12);
+        Nand (a = out3X12, b = address[0], out = out3l12);
+        Nand (a = out2X12, b = ns12, out = out4l12);
+        Nand (a = out5X12, b = address[0], out = out5l12);
+        Nand (a = out4X12, b = ns12, out = out6l12);
+        Nand (a = out7X12, b = address[0], out = out7l12);
+        Nand (a = out6X12, b = ns12, out = out8l12);
+        Nand (a = out1l12, b = out2l12, out = out9l12);
+        Nand (a = out3l12, b = out4l12, out = out10l12);
+        Nand (a = out5l12, b = out6l12, out = out11l12);
+        Nand (a = out7l12, b = out8l12, out = out12l12);
+        Nand (a = out9l12, b = ns1, out = out13l12);
+        Nand (a = out10l12, b = address[1], out = out14l12);
+        Nand (a = out11l12, b = ns1, out = out15l12);
+        Nand (a = out12l12, b = address[1], out = out16l12);
+        Nand (a = out13l12, b = out14l12, out = out17l12);
+        Nand (a = out15l12, b = out16l12, out = out18l12);
+        Nand (a = out17l12, b = ns2, out = out19l12);
+        Nand (a = out18l12, b = address[2], out = out20l12);
+        Nand (a = out19l12, b = out20l12, out = out[12]);
+        
+        Nand (a = out1X13, b = address[0], out = out1l13);
+        Nand (a = out0X13, b = ns13, out = out2l13);
+        Nand (a = out3X13, b = address[0], out = out3l13);
+        Nand (a = out2X13, b = ns13, out = out4l13);
+        Nand (a = out5X13, b = address[0], out = out5l13);
+        Nand (a = out4X13, b = ns13, out = out6l13);
+        Nand (a = out7X13, b = address[0], out = out7l13);
+        Nand (a = out6X13, b = ns13, out = out8l13);
+        Nand (a = out1l13, b = out2l13, out = out9l13);
+        Nand (a = out3l13, b = out4l13, out = out10l13);
+        Nand (a = out5l13, b = out6l13, out = out11l13);
+        Nand (a = out7l13, b = out8l13, out = out12l13);
+        Nand (a = out9l13, b = ns1, out = out13l13);
+        Nand (a = out10l13, b = address[1], out = out14l13);
+        Nand (a = out11l13, b = ns1, out = out15l13);
+        Nand (a = out12l13, b = address[1], out = out16l13);
+        Nand (a = out13l13, b = out14l13, out = out17l13);
+        Nand (a = out15l13, b = out16l13, out = out18l13);
+        Nand (a = out17l13, b = ns2, out = out19l13);
+        Nand (a = out18l13, b = address[2], out = out20l13);
+        Nand (a = out19l13, b = out20l13, out = out[13]);
+        
+        Nand (a = out1X14, b = address[0], out = out1l14);
+        Nand (a = out0X14, b = ns14, out = out2l14);
+        Nand (a = out3X14, b = address[0], out = out3l14);
+        Nand (a = out2X14, b = ns14, out = out4l14);
+        Nand (a = out5X14, b = address[0], out = out5l14);
+        Nand (a = out4X14, b = ns14, out = out6l14);
+        Nand (a = out7X14, b = address[0], out = out7l14);
+        Nand (a = out6X14, b = ns14, out = out8l14);
+        Nand (a = out1l14, b = out2l14, out = out9l14);
+        Nand (a = out3l14, b = out4l14, out = out10l14);
+        Nand (a = out5l14, b = out6l14, out = out11l14);
+        Nand (a = out7l14, b = out8l14, out = out12l14);
+        Nand (a = out9l14, b = ns1, out = out13l14);
+        Nand (a = out10l14, b = address[1], out = out14l14);
+        Nand (a = out11l14, b = ns1, out = out15l14);
+        Nand (a = out12l14, b = address[1], out = out16l14);
+        Nand (a = out13l14, b = out14l14, out = out17l14);
+        Nand (a = out15l14, b = out16l14, out = out18l14);
+        Nand (a = out17l14, b = ns2, out = out19l14);
+        Nand (a = out18l14, b = address[2], out = out20l14);
+        Nand (a = out19l14, b = out20l14, out = out[14]);
+        
+        Nand (a = out1X15, b = address[0], out = out1l15);
+        Nand (a = out0X15, b = ns15, out = out2l15);
+        Nand (a = out3X15, b = address[0], out = out3l15);
+        Nand (a = out2X15, b = ns15, out = out4l15);
+        Nand (a = out5X15, b = address[0], out = out5l15);
+        Nand (a = out4X15, b = ns15, out = out6l15);
+        Nand (a = out7X15, b = address[0], out = out7l15);
+        Nand (a = out6X15, b = ns15, out = out8l15);
+        Nand (a = out1l15, b = out2l15, out = out9l15);
+        Nand (a = out3l15, b = out4l15, out = out10l15);
+        Nand (a = out5l15, b = out6l15, out = out11l15);
+        Nand (a = out7l15, b = out8l15, out = out12l15);
+        Nand (a = out9l15, b = ns1, out = out13l15);
+        Nand (a = out10l15, b = address[1], out = out14l15);
+        Nand (a = out11l15, b = ns1, out = out15l15);
+        Nand (a = out12l15, b = address[1], out = out16l15);
+        Nand (a = out13l15, b = out14l15, out = out17l15);
+        Nand (a = out15l15, b = out16l15, out = out18l15);
+        Nand (a = out17l15, b = ns2, out = out19l15);
+        Nand (a = out18l15, b = address[2], out = out20l15);
+        Nand (a = out19l15, b = out20l15, out = out[15]);
 }
