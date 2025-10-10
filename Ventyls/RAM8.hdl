@@ -54,15 +54,6 @@ CHIP RAM8 {
 	Not (in = out5t, out = load7);
 //-------------------------------
 
-	Not(in=load0, out=nload0);
-	Not(in=load1, out=nload1);
-	Not(in=load2, out=nload2);
-	Not(in=load3, out=nload3);
-	Not(in=load4, out=nload4);
-	Not(in=load5, out=nload5);
-	Not(in=load6, out=nload6);
-	Not(in=load7, out=nload7);	
-
     // Восемь регистров
     Register(in = in, load = load0, out = out0W);
     Register(in = in, load = load1, out = out1W);
