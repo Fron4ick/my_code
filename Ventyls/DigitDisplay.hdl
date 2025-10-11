@@ -1,0 +1,99 @@
+// 7-segments digit display
+//    a
+//   ---
+// f| g |b
+//   ---
+// e|   |c
+//   ---
+//    d
+CHIP DigitDisplay {
+    IN in[4];
+    OUT a, b, c, d, e, f, g;
+    PARTS:
+    //   | 0 1 2 3 4 5 6 7 8 9 A b C d E F
+    // --|--------------------------------
+    // a | 1 0 1 1 0 1 1 1 1 1 1 0 1 0 1 1
+    // b | 1 1 1 1 1 0 0 1 1 1 1 0 0 1 0 0
+    // c | 1 1 0 1 1 1 1 1 1 1 1 1 0 1 0 0
+    // d | 1 0 1 1 0 1 1 0 1 1 0 1 1 1 1 0
+    // e | 1 0 1 0 0 0 1 0 1 0 1 1 1 1 1 1
+    // f | 1 0 0 0 1 1 1 0 1 1 1 1 1 0 1 1
+    // g | 0 0 1 1 1 1 1 0 1 1 1 1 0 1 1 1
+	
+	// Инверсия входных данных
+
+    Not (in = in[0], out = n0);
+    Not (in = in[1], out = n1);
+    Not (in = in[2], out = n2);
+    Not (in = in[3], out = n3);
+
+	// Все числа от 0 до F. Нанды распределены неравномерно, так как много повторяющихся пар 2 и 3 разрядов, а также 0 и 1 разядов.
+
+	// Сначала нандами смотрица комбинация 2 и 3 разряда входного числа
+	Nand(a=n3, b=n2, out=x0ch1);
+
+	// Затем нандами смотрица комбинация 0 и 1 разряда входного числа
+	Nand(a=n1, b=n0, out=x0ch2);
+	Or(a=x0ch1, b=x0ch2, out=ch0); // 0
+
+	Nand(a=n1, b=in[0], out=x1ch2);
+	Or(a=x0ch1, b=x1ch2, out=ch1); // 1
+
+    Nand(a=in[1], b=n0, out=x2ch2);
+	Or(a=x0ch1, b=x2ch2, out=ch2); // 2
+
+	Nand(a=in[1], b=in[0], out=x3ch2);
+	Or(a=x0ch1, b=x3ch2, out=ch3); // 3
+
+	Nand(a=n3, b=in[2], out=x4ch1);
+	Or(a=x4ch1, b=x0ch2, out=ch4); // 4
+	Or(a=x4ch1, b=x1ch2, out=ch5); // 5
+	Or(a=x4ch1, b=x2ch2, out=ch6); // 6
+	Or(a=x4ch1, b=x3ch2, out=ch7); // 7
+
+	// 8 нет, так как при восьмёрке все сегменты дисплея горят, а мы берем отрицание (то есть числа при которых сегмент не горит)
+
+	Nand(a=in[3], b=n2, out=x8ch1);
+	Or(a=x8ch1, b=x1ch2, out=ch9); // 8
+	Or(a=x8ch1, b=x2ch2, out=cha); // a
+	Or(a=x8ch1, b=x3ch2, out=chb); // b
+
+	Nand(a=in[3], b=in[2], out=x12ch1);
+	Or(a=x12ch1, b=x0ch2, out=chc); // c
+	Or(a=x12ch1, b=x1ch2, out=chd); // d
+	Or(a=x12ch1, b=x2ch2, out=che); // e
+	Or(a=x12ch1, b=x3ch2, out=chf); // f
+
+	//Прописываем для каждого сегмента числа при которых он не горит, так как таких меньше чем чисел при которых сегменты горят
+	// Для некоторых сегментов есть одинаковые пары чисел, при которых он не горит -→ для некоторых сегментов используются пары просмотренные ранее для предыдущих сегментов
+    
+    And(a=ch1, b=ch4, out=a1);
+    And(a=chb, b=chd, out=a2);
+	And(a=a1, b=a2, out=a); // сегмент a
+
+    And(a=ch5, b=ch6, out=b1);
+    And(a=chb, b=chc, out=b2);
+    And(a=che, b=chf, out=b3);
+    And(a=b1, b=b2, out=b4);
+	And(a=b4, b=b3, out=b); // сегмент b
+
+    And(a=ch2, b=chc, out=c1);
+    And(a=c1, b=b3, out=c); // сегмент c
+
+    And(a=ch1, b=ch7, out=d1);
+    And(a=ch4, b=cha, out=d2);
+    And(a=d1, b=d2, out=d3);
+    And(a=d3, b=chf, out=d); // сегмент b
+
+    And(a=ch3, b=ch4, out=e1);
+    And(a=ch5, b=ch9, out=e2);
+    And(a=e1, b=e2, out=e3);
+    And(a=e3, b=d1, out=e); // сегмент e
+
+    And(a=ch2, b=ch3, out=f1);
+    And(a=d1, b=chd, out=f2);
+    And(a=f1, b=f2, out=f); // сегмент f
+
+    And(a=ch0, b=chc, out=g1);
+    And(a=g1, b=d1, out=g); // сегмент g
+}

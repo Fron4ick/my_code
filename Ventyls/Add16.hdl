@@ -1,0 +1,166 @@
+/**
+ * Adds two 16-bit values.
+ * The most significant carry bit is ignored.
+ */
+
+CHIP Add16 {
+    IN a[16], b[16];
+    OUT out[16];
+
+	PARTS:
+
+	Nand (a = a[0], b = b[0], out = n1X0);
+	Nand (a = n1X0, b = n1X0, out = carryX0);
+	Nand (a = n1X0, b = a[0], out = n2X0);
+	Nand (a = n1X0, b = b[0], out = n3X0);
+	Nand (a = n2X0, b = n3X0, out = out[0]);
+	
+	Nand (a = a[1], b = b[1], out = n1X1);
+	Nand (a = n1X1, b = a[1], out = n2X1);
+	Nand (a = n1X1, b = b[1], out = n3X1);
+	Nand (a = n2X1, b = n3X1, out = n4X1);
+	Nand (a = n4X1, b = carryX0, out = n5X1);
+	Nand (a = n4X1, b = n5X1, out = n6X1);
+	Nand (a = carryX0, b = n5X1, out = n7X1);
+	Nand (a = n6X1, b = n7X1, out = out[1]);
+	Nand (a = n1X1, b = n5X1, out = carryX1);
+
+	Nand (a = a[2], b = b[2], out = n1X2);
+	Nand (a = n1X2, b = a[2], out = n2X2);
+	Nand (a = n1X2, b = b[2], out = n3X2);
+	Nand (a = n2X2, b = n3X2, out = n4X2);
+	Nand (a = n4X2, b = carryX1, out = n5X2);
+	Nand (a = n4X2, b = n5X2, out = n6X2);
+	Nand (a = carryX1, b = n5X2, out = n7X2);
+	Nand (a = n6X2, b = n7X2, out = out[2]);
+	Nand (a = n1X2, b = n5X2, out = carryX2);
+
+	Nand (a = a[3], b = b[3], out = n1X3);
+	Nand (a = n1X3, b = a[3], out = n2X3);
+	Nand (a = n1X3, b = b[3], out = n3X3);
+	Nand (a = n2X3, b = n3X3, out = n4X3);
+	Nand (a = n4X3, b = carryX2, out = n5X3);
+	Nand (a = n4X3, b = n5X3, out = n6X3);
+	Nand (a = carryX2, b = n5X3, out = n7X3);
+	Nand (a = n6X3, b = n7X3, out = out[3]);
+	Nand (a = n1X3, b = n5X3, out = carryX3);
+
+	Nand (a = a[4], b = b[4], out = n1X4);
+	Nand (a = n1X4, b = a[4], out = n2X4);
+	Nand (a = n1X4, b = b[4], out = n3X4);
+	Nand (a = n2X4, b = n3X4, out = n4X4);
+	Nand (a = n4X4, b = carryX3, out = n5X4);
+	Nand (a = n4X4, b = n5X4, out = n6X4);
+	Nand (a = carryX3, b = n5X4, out = n7X4);
+	Nand (a = n6X4, b = n7X4, out = out[4]);
+	Nand (a = n1X4, b = n5X4, out = carryX4);
+
+	Nand (a = a[5], b = b[5], out = n1X5);
+	Nand (a = n1X5, b = a[5], out = n2X5);
+	Nand (a = n1X5, b = b[5], out = n3X5);
+	Nand (a = n2X5, b = n3X5, out = n4X5);
+	Nand (a = n4X5, b = carryX4, out = n5X5);
+	Nand (a = n4X5, b = n5X5, out = n6X5);
+	Nand (a = carryX4, b = n5X5, out = n7X5);
+	Nand (a = n6X5, b = n7X5, out = out[5]);
+	Nand (a = n1X5, b = n5X5, out = carryX5);
+
+	Nand (a = a[6], b = b[6], out = n1X6);
+	Nand (a = n1X6, b = a[6], out = n2X6);
+	Nand (a = n1X6, b = b[6], out = n3X6);
+	Nand (a = n2X6, b = n3X6, out = n4X6);
+	Nand (a = n4X6, b = carryX5, out = n5X6);
+	Nand (a = n4X6, b = n5X6, out = n6X6);
+	Nand (a = carryX5, b = n5X6, out = n7X6);
+	Nand (a = n6X6, b = n7X6, out = out[6]);
+	Nand (a = n1X6, b = n5X6, out = carryX6);
+
+	Nand (a = a[7], b = b[7], out = n1X7);
+	Nand (a = n1X7, b = a[7], out = n2X7);
+	Nand (a = n1X7, b = b[7], out = n3X7);
+	Nand (a = n2X7, b = n3X7, out = n4X7);
+	Nand (a = n4X7, b = carryX6, out = n5X7);
+	Nand (a = n4X7, b = n5X7, out = n6X7);
+	Nand (a = carryX6, b = n5X7, out = n7X7);
+	Nand (a = n6X7, b = n7X7, out = out[7]);
+	Nand (a = n1X7, b = n5X7, out = carryX7);
+
+	Nand (a = a[8], b = b[8], out = n1X8);
+	Nand (a = n1X8, b = a[8], out = n2X8);
+	Nand (a = n1X8, b = b[8], out = n3X8);
+	Nand (a = n2X8, b = n3X8, out = n4X8);
+	Nand (a = n4X8, b = carryX7, out = n5X8);
+	Nand (a = n4X8, b = n5X8, out = n6X8);
+	Nand (a = carryX7, b = n5X8, out = n7X8);
+	Nand (a = n6X8, b = n7X8, out = out[8]);
+	Nand (a = n1X8, b = n5X8, out = carryX8);
+
+	Nand (a = a[9], b = b[9], out = n1X9);
+	Nand (a = n1X9, b = a[9], out = n2X9);
+	Nand (a = n1X9, b = b[9], out = n3X9);
+	Nand (a = n2X9, b = n3X9, out = n4X9);
+	Nand (a = n4X9, b = carryX8, out = n5X9);
+	Nand (a = n4X9, b = n5X9, out = n6X9);
+	Nand (a = carryX8, b = n5X9, out = n7X9);
+	Nand (a = n6X9, b = n7X9, out = out[9]);
+	Nand (a = n1X9, b = n5X9, out = carryX9);
+
+	Nand (a = a[10], b = b[10], out = n1X10);
+	Nand (a = n1X10, b = a[10], out = n2X10);
+	Nand (a = n1X10, b = b[10], out = n3X10);
+	Nand (a = n2X10, b = n3X10, out = n4X10);
+	Nand (a = n4X10, b = carryX9, out = n5X10);
+	Nand (a = n4X10, b = n5X10, out = n6X10);
+	Nand (a = carryX9, b = n5X10, out = n7X10);
+	Nand (a = n6X10, b = n7X10, out = out[10]);
+	Nand (a = n1X10, b = n5X10, out = carryX10);
+
+	Nand (a = a[11], b = b[11], out = n1X11);
+	Nand (a = n1X11, b = a[11], out = n2X11);
+	Nand (a = n1X11, b = b[11], out = n3X11);
+	Nand (a = n2X11, b = n3X11, out = n4X11);
+	Nand (a = n4X11, b = carryX10, out = n5X11);
+	Nand (a = n4X11, b = n5X11, out = n6X11);
+	Nand (a = carryX10, b = n5X11, out = n7X11);
+	Nand (a = n6X11, b = n7X11, out = out[11]);
+	Nand (a = n1X11, b = n5X11, out = carryX11);
+
+	Nand (a = a[12], b = b[12], out = n1X12);
+	Nand (a = n1X12, b = a[12], out = n2X12);
+	Nand (a = n1X12, b = b[12], out = n3X12);
+	Nand (a = n2X12, b = n3X12, out = n4X12);
+	Nand (a = n4X12, b = carryX11, out = n5X12);
+	Nand (a = n4X12, b = n5X12, out = n6X12);
+	Nand (a = carryX11, b = n5X12, out = n7X12);
+	Nand (a = n6X12, b = n7X12, out = out[12]);
+	Nand (a = n1X12, b = n5X12, out = carryX12);
+
+	Nand (a = a[13], b = b[13], out = n1X13);
+	Nand (a = n1X13, b = a[13], out = n2X13);
+	Nand (a = n1X13, b = b[13], out = n3X13);
+	Nand (a = n2X13, b = n3X13, out = n4X13);
+	Nand (a = n4X13, b = carryX12, out = n5X13);
+	Nand (a = n4X13, b = n5X13, out = n6X13);
+	Nand (a = carryX12, b = n5X13, out = n7X13);
+	Nand (a = n6X13, b = n7X13, out = out[13]);
+	Nand (a = n1X13, b = n5X13, out = carryX13);
+
+	Nand (a = a[14], b = b[14], out = n1X14);
+	Nand (a = n1X14, b = a[14], out = n2X14);
+	Nand (a = n1X14, b = b[14], out = n3X14);
+	Nand (a = n2X14, b = n3X14, out = n4X14);
+	Nand (a = n4X14, b = carryX13, out = n5X14);
+	Nand (a = n4X14, b = n5X14, out = n6X14);
+	Nand (a = carryX13, b = n5X14, out = n7X14);
+	Nand (a = n6X14, b = n7X14, out = out[14]);
+	Nand (a = n1X14, b = n5X14, out = carryX14);
+
+	Nand (a = a[15], b = b[15], out = n1X15);
+	Nand (a = n1X15, b = a[15], out = n2X15);
+	Nand (a = n1X15, b = b[15], out = n3X15);
+	Nand (a = n2X15, b = n3X15, out = n4X15);
+	Nand (a = n4X15, b = carryX14, out = n5X15);
+	Nand (a = n4X15, b = n5X15, out = n6X15);
+	Nand (a = carryX14, b = n5X15, out = n7X15);
+	Nand (a = n6X15, b = n7X15, out = out[15]);
+}

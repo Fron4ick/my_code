@@ -1,0 +1,106 @@
+// This file is part of www.nand2tetris.org
+/**
+ * 16-bit incrementer:
+ * out = in + 1 (arithmetic addition)
+ */
+
+CHIP Inc16 {
+    IN in[16];
+    OUT out[16];
+
+    PARTS:
+	Nand (a = in[0], b = true, out = n1X0);
+	Nand (a = n1X0, b = n1X0, out = carryX0);
+	Nand (a = n1X0, b = in[0], out = n2X0);
+	Nand (a = n1X0, b = true, out = n3X0);
+	Nand (a = n2X0, b = n3X0, out = out[0]);
+	
+	Nand (a = in[1], b = carryX0, out = n1X1);
+	Nand (a = n1X1, b = n1X1, out = carryX1);
+	Nand (a = n1X1, b = in[1], out = n2X1);
+	Nand (a = n1X1, b = carryX0, out = n3X1);
+	Nand (a = n2X1, b = n3X1, out = out[1]);
+
+	Nand (a = in[2], b = carryX1, out = n1X2);
+	Nand (a = n1X2, b = n1X2, out = carryX2);
+	Nand (a = n1X2, b = in[2], out = n2X2);
+	Nand (a = n1X2, b = carryX1, out = n3X2);
+	Nand (a = n2X2, b = n3X2, out = out[2]);
+
+	Nand (a = in[3], b = carryX2, out = n1X3);
+	Nand (a = n1X3, b = n1X3, out = carryX3);
+	Nand (a = n1X3, b = in[3], out = n2X3);
+	Nand (a = n1X3, b = carryX2, out = n3X3);
+	Nand (a = n2X3, b = n3X3, out = out[3]);
+
+	Nand (a = in[4], b = carryX3, out = n1X4);
+	Nand (a = n1X4, b = n1X4, out = carryX4);
+	Nand (a = n1X4, b = in[4], out = n2X4);
+	Nand (a = n1X4, b = carryX3, out = n3X4);
+	Nand (a = n2X4, b = n3X4, out = out[4]);
+
+	Nand (a = in[5], b = carryX4, out = n1X5);
+	Nand (a = n1X5, b = n1X5, out = carryX5);
+	Nand (a = n1X5, b = in[5], out = n2X5);
+	Nand (a = n1X5, b = carryX4, out = n3X5);
+	Nand (a = n2X5, b = n3X5, out = out[5]);
+
+	Nand (a = in[6], b = carryX5, out = n1X6);
+	Nand (a = n1X6, b = n1X6, out = carryX6);
+	Nand (a = n1X6, b = in[6], out = n2X6);
+	Nand (a = n1X6, b = carryX5, out = n3X6);
+	Nand (a = n2X6, b = n3X6, out = out[6]);
+
+	Nand (a = in[7], b = carryX6, out = n1X7);
+	Nand (a = n1X7, b = n1X7, out = carryX7);
+	Nand (a = n1X7, b = in[7], out = n2X7);
+	Nand (a = n1X7, b = carryX6, out = n3X7);
+	Nand (a = n2X7, b = n3X7, out = out[7]);
+
+	Nand (a = in[8], b = carryX7, out = n1X8);
+	Nand (a = n1X8, b = n1X8, out = carryX8);
+	Nand (a = n1X8, b = in[8], out = n2X8);
+	Nand (a = n1X8, b = carryX7, out = n3X8);
+	Nand (a = n2X8, b = n3X8, out = out[8]);
+
+	Nand (a = in[9], b = carryX8, out = n1X9);
+	Nand (a = n1X9, b = n1X9, out = carryX9);
+	Nand (a = n1X9, b = in[9], out = n2X9);
+	Nand (a = n1X9, b = carryX8, out = n3X9);
+	Nand (a = n2X9, b = n3X9, out = out[9]);
+
+	Nand (a = in[10], b = carryX9, out = n1X10);
+	Nand (a = n1X10, b = n1X10, out = carryX10);
+	Nand (a = n1X10, b = in[10], out = n2X10);
+	Nand (a = n1X10, b = carryX9, out = n3X10);
+	Nand (a = n2X10, b = n3X10, out = out[10]);
+
+	Nand (a = in[11], b = carryX10, out = n1X11);
+	Nand (a = n1X11, b = n1X11, out = carryX11);
+	Nand (a = n1X11, b = in[11], out = n2X11);
+	Nand (a = n1X11, b = carryX10, out = n3X11);
+	Nand (a = n2X11, b = n3X11, out = out[11]);
+
+	Nand (a = in[12], b = carryX11, out = n1X12);
+	Nand (a = n1X12, b = n1X12, out = carryX12);
+	Nand (a = n1X12, b = in[12], out = n2X12);
+	Nand (a = n1X12, b = carryX11, out = n3X12);
+	Nand (a = n2X12, b = n3X12, out = out[12]);
+
+	Nand (a = in[13], b = carryX12, out = n1X13);
+	Nand (a = n1X13, b = n1X13, out = carryX13);
+	Nand (a = n1X13, b = in[13], out = n2X13);
+	Nand (a = n1X13, b = carryX12, out = n3X13);
+	Nand (a = n2X13, b = n3X13, out = out[13]);
+
+	Nand (a = in[14], b = carryX13, out = n1X14);
+	Nand (a = n1X14, b = n1X14, out = carryX14);
+	Nand (a = n1X14, b = in[14], out = n2X14);
+	Nand (a = n1X14, b = carryX13, out = n3X14);
+	Nand (a = n2X14, b = n3X14, out = out[14]);
+
+	Nand (a = in[15], b = carryX14, out = n1X15);
+	Nand (a = n1X15, b = in[15], out = n2X15);
+	Nand (a = n1X15, b = carryX14, out = n3X15);
+	Nand (a = n2X15, b = n3X15, out = out[15]);
+}
