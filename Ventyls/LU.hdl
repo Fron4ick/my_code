@@ -1,0 +1,307 @@
+/**
+ * Logic Unit gate: 
+ * sel — определяет, какую операцию нужно применять:
+ *      And16   if sel == 00
+ *      Or16    if sel == 01
+ *      Nand16  if sel == 10
+ *      Nor16   if sel == 11
+ * negateA — нужно ли предварительно применить отрицание ко входу A перед применение операции
+ * negateB — нужно ли предварительно применить отрицание ко входу B перед применение операции
+ */
+
+CHIP LU {
+    IN a[16], b[16], sel[2], negateA, negateB;
+    OUT out[16];
+
+    PARTS:
+	Nand (a = sel[0], b = sel[0], out = ns0);
+	Nand (a = sel[1], b = sel[1], out = ns1);
+
+	Xor (a = a[0], b = negateA, out = xn1X0);
+	Xor (a = b[0], b = negateB, out = xn2X0);
+	Nand (a = xn1X0, b = xn1X0, out = na0);
+	Nand (a = xn2X0, b = xn2X0, out = nb0);
+	Nand (a = xn1X0, b = xn2X0, out = n1X0);
+	Nand (a = n1X0, b = n1X0, out = n2X0);
+	Nand (a = na0, b = nb0, out = n3X0);
+	Nand (a = n1X0, b = ns0, out = n4X0);
+	Nand (a = n2X0, b = n2X0, out = n5X0);
+	Nand (a = n3X0, b = sel[0], out = n6X0);
+	Nand (a = n3X0, b = n3X0, out = n7X0);
+	Nand (a = n5X0, b = n6X0, out = n8X0);
+	Nand (a = n7X0, b = sel[0], out = n9X0);
+	Nand (a = ns1, b = n8X0, out = n10X0);
+	Nand (a = n9X0, b = n4X0, out = n11X0);
+	Nand (a = n11X0, b = sel[1], out = n12X0);
+	Nand (a = n10X0, b = n12X0, out = out[0]);
+
+	Xor (a = a[1], b = negateA, out = xn1X1);
+	Xor (a = b[1], b = negateB, out = xn2X1);
+	Nand (a = xn1X1, b = xn1X1, out = na1);
+	Nand (a = xn2X1, b = xn2X1, out = nb1);
+	Nand (a = xn1X1, b = xn2X1, out = n1X1);
+	Nand (a = n1X1, b = n1X1, out = n2X1);
+	Nand (a = na1, b = nb1, out = n3X1);
+	Nand (a = n1X1, b = ns0, out = n4X1);
+	Nand (a = n2X1, b = n2X1, out = n5X1);
+	Nand (a = n3X1, b = sel[0], out = n6X1);
+	Nand (a = n3X1, b = n3X1, out = n7X1);
+	Nand (a = n5X1, b = n6X1, out = n8X1);
+	Nand (a = n7X1, b = sel[0], out = n9X1);
+	Nand (a = ns1, b = n8X1, out = n10X1);
+	Nand (a = n9X1, b = n4X1, out = n11X1);
+	Nand (a = n11X1, b = sel[1], out = n12X1);
+	Nand (a = n10X1, b = n12X1, out = out[1]);
+
+	Xor (a = a[2], b = negateA, out = xn1X2);
+	Xor (a = b[2], b = negateB, out = xn2X2);
+	Nand (a = xn1X2, b = xn1X2, out = na2);
+	Nand (a = xn2X2, b = xn2X2, out = nb2);
+	Nand (a = xn1X2, b = xn2X2, out = n1X2);
+	Nand (a = n1X2, b = n1X2, out = n2X2);
+	Nand (a = na2, b = nb2, out = n3X2);
+	Nand (a = n1X2, b = ns0, out = n4X2);
+	Nand (a = n2X2, b = n2X2, out = n5X2);
+	Nand (a = n3X2, b = sel[0], out = n6X2);
+	Nand (a = n3X2, b = n3X2, out = n7X2);
+	Nand (a = n5X2, b = n6X2, out = n8X2);
+	Nand (a = n7X2, b = sel[0], out = n9X2);
+	Nand (a = ns1, b = n8X2, out = n10X2);
+	Nand (a = n9X2, b = n4X2, out = n11X2);
+	Nand (a = n11X2, b = sel[1], out = n12X2);
+	Nand (a = n10X2, b = n12X2, out = out[2]);
+
+	Xor (a = a[3], b = negateA, out = xn1X3);
+	Xor (a = b[3], b = negateB, out = xn2X3);
+	Nand (a = xn1X3, b = xn1X3, out = na3);
+	Nand (a = xn2X3, b = xn2X3, out = nb3);
+	Nand (a = xn1X3, b = xn2X3, out = n1X3);
+	Nand (a = n1X3, b = n1X3, out = n2X3);
+	Nand (a = na3, b = nb3, out = n3X3);
+	Nand (a = n1X3, b = ns0, out = n4X3);
+	Nand (a = n2X3, b = n2X3, out = n5X3);
+	Nand (a = n3X3, b = sel[0], out = n6X3);
+	Nand (a = n3X3, b = n3X3, out = n7X3);
+	Nand (a = n5X3, b = n6X3, out = n8X3);
+	Nand (a = n7X3, b = sel[0], out = n9X3);
+	Nand (a = ns1, b = n8X3, out = n10X3);
+	Nand (a = n9X3, b = n4X3, out = n11X3);
+	Nand (a = n11X3, b = sel[1], out = n12X3);
+	Nand (a = n10X3, b = n12X3, out = out[3]);
+
+	Xor (a = a[4], b = negateA, out = xn1X4);
+	Xor (a = b[4], b = negateB, out = xn2X4);
+	Nand (a = xn1X4, b = xn1X4, out = na4);
+	Nand (a = xn2X4, b = xn2X4, out = nb4);
+	Nand (a = xn1X4, b = xn2X4, out = n1X4);
+	Nand (a = n1X4, b = n1X4, out = n2X4);
+	Nand (a = na4, b = nb4, out = n3X4);
+	Nand (a = n1X4, b = ns0, out = n4X4);
+	Nand (a = n2X4, b = n2X4, out = n5X4);
+	Nand (a = n3X4, b = sel[0], out = n6X4);
+	Nand (a = n3X4, b = n3X4, out = n7X4);
+	Nand (a = n5X4, b = n6X4, out = n8X4);
+	Nand (a = n7X4, b = sel[0], out = n9X4);
+	Nand (a = ns1, b = n8X4, out = n10X4);
+	Nand (a = n9X4, b = n4X4, out = n11X4);
+	Nand (a = n11X4, b = sel[1], out = n12X4);
+	Nand (a = n10X4, b = n12X4, out = out[4]);
+
+	Xor (a = a[5], b = negateA, out = xn1X5);
+	Xor (a = b[5], b = negateB, out = xn2X5);
+	Nand (a = xn1X5, b = xn1X5, out = na5);
+	Nand (a = xn2X5, b = xn2X5, out = nb5);
+	Nand (a = xn1X5, b = xn2X5, out = n1X5);
+	Nand (a = n1X5, b = n1X5, out = n2X5);
+	Nand (a = na5, b = nb5, out = n3X5);
+	Nand (a = n1X5, b = ns0, out = n4X5);
+	Nand (a = n2X5, b = n2X5, out = n5X5);
+	Nand (a = n3X5, b = sel[0], out = n6X5);
+	Nand (a = n3X5, b = n3X5, out = n7X5);
+	Nand (a = n5X5, b = n6X5, out = n8X5);
+	Nand (a = n7X5, b = sel[0], out = n9X5);
+	Nand (a = ns1, b = n8X5, out = n10X5);
+	Nand (a = n9X5, b = n4X5, out = n11X5);
+	Nand (a = n11X5, b = sel[1], out = n12X5);
+	Nand (a = n10X5, b = n12X5, out = out[5]);
+
+	Xor (a = a[6], b = negateA, out = xn1X6);
+	Xor (a = b[6], b = negateB, out = xn2X6);
+	Nand (a = xn1X6, b = xn1X6, out = na6);
+	Nand (a = xn2X6, b = xn2X6, out = nb6);
+	Nand (a = xn1X6, b = xn2X6, out = n1X6);
+	Nand (a = n1X6, b = n1X6, out = n2X6);
+	Nand (a = na6, b = nb6, out = n3X6);
+	Nand (a = n1X6, b = ns0, out = n4X6);
+	Nand (a = n2X6, b = n2X6, out = n5X6);
+	Nand (a = n3X6, b = sel[0], out = n6X6);
+	Nand (a = n3X6, b = n3X6, out = n7X6);
+	Nand (a = n5X6, b = n6X6, out = n8X6);
+	Nand (a = n7X6, b = sel[0], out = n9X6);
+	Nand (a = ns1, b = n8X6, out = n10X6);
+	Nand (a = n9X6, b = n4X6, out = n11X6);
+	Nand (a = n11X6, b = sel[1], out = n12X6);
+	Nand (a = n10X6, b = n12X6, out = out[6]);
+
+	Xor (a = a[7], b = negateA, out = xn1X7);
+	Xor (a = b[7], b = negateB, out = xn2X7);
+	Nand (a = xn1X7, b = xn1X7, out = na7);
+	Nand (a = xn2X7, b = xn2X7, out = nb7);
+	Nand (a = xn1X7, b = xn2X7, out = n1X7);
+	Nand (a = n1X7, b = n1X7, out = n2X7);
+	Nand (a = na7, b = nb7, out = n3X7);
+	Nand (a = n1X7, b = ns0, out = n4X7);
+	Nand (a = n2X7, b = n2X7, out = n5X7);
+	Nand (a = n3X7, b = sel[0], out = n6X7);
+	Nand (a = n3X7, b = n3X7, out = n7X7);
+	Nand (a = n5X7, b = n6X7, out = n8X7);
+	Nand (a = n7X7, b = sel[0], out = n9X7);
+	Nand (a = ns1, b = n8X7, out = n10X7);
+	Nand (a = n9X7, b = n4X7, out = n11X7);
+	Nand (a = n11X7, b = sel[1], out = n12X7);
+	Nand (a = n10X7, b = n12X7, out = out[7]);
+
+	Xor (a = a[8], b = negateA, out = xn1X8);
+	Xor (a = b[8], b = negateB, out = xn2X8);
+	Nand (a = xn1X8, b = xn1X8, out = na8);
+	Nand (a = xn2X8, b = xn2X8, out = nb8);
+	Nand (a = xn1X8, b = xn2X8, out = n1X8);
+	Nand (a = n1X8, b = n1X8, out = n2X8);
+	Nand (a = na8, b = nb8, out = n3X8);
+	Nand (a = n1X8, b = ns0, out = n4X8);
+	Nand (a = n2X8, b = n2X8, out = n5X8);
+	Nand (a = n3X8, b = sel[0], out = n6X8);
+	Nand (a = n3X8, b = n3X8, out = n7X8);
+	Nand (a = n5X8, b = n6X8, out = n8X8);
+	Nand (a = n7X8, b = sel[0], out = n9X8);
+	Nand (a = ns1, b = n8X8, out = n10X8);
+	Nand (a = n9X8, b = n4X8, out = n11X8);
+	Nand (a = n11X8, b = sel[1], out = n12X8);
+	Nand (a = n10X8, b = n12X8, out = out[8]);
+
+	Xor (a = a[9], b = negateA, out = xn1X9);
+	Xor (a = b[9], b = negateB, out = xn2X9);
+	Nand (a = xn1X9, b = xn1X9, out = na9);
+	Nand (a = xn2X9, b = xn2X9, out = nb9);
+	Nand (a = xn1X9, b = xn2X9, out = n1X9);
+	Nand (a = n1X9, b = n1X9, out = n2X9);
+	Nand (a = na9, b = nb9, out = n3X9);
+	Nand (a = n1X9, b = ns0, out = n4X9);
+	Nand (a = n2X9, b = n2X9, out = n5X9);
+	Nand (a = n3X9, b = sel[0], out = n6X9);
+	Nand (a = n3X9, b = n3X9, out = n7X9);
+	Nand (a = n5X9, b = n6X9, out = n8X9);
+	Nand (a = n7X9, b = sel[0], out = n9X9);
+	Nand (a = ns1, b = n8X9, out = n10X9);
+	Nand (a = n9X9, b = n4X9, out = n11X9);
+	Nand (a = n11X9, b = sel[1], out = n12X9);
+	Nand (a = n10X9, b = n12X9, out = out[9]);
+
+	Xor (a = a[10], b = negateA, out = xn1X10);
+	Xor (a = b[10], b = negateB, out = xn2X10);
+	Nand (a = xn1X10, b = xn1X10, out = na10);
+	Nand (a = xn2X10, b = xn2X10, out = nb10);
+	Nand (a = xn1X10, b = xn2X10, out = n1X10);
+	Nand (a = n1X10, b = n1X10, out = n2X10);
+	Nand (a = na10, b = nb10, out = n3X10);
+	Nand (a = n1X10, b = ns0, out = n4X10);
+	Nand (a = n2X10, b = n2X10, out = n5X10);
+	Nand (a = n3X10, b = sel[0], out = n6X10);
+	Nand (a = n3X10, b = n3X10, out = n7X10);
+	Nand (a = n5X10, b = n6X10, out = n8X10);
+	Nand (a = n7X10, b = sel[0], out = n9X10);
+	Nand (a = ns1, b = n8X10, out = n10X10);
+	Nand (a = n9X10, b = n4X10, out = n11X10);
+	Nand (a = n11X10, b = sel[1], out = n12X10);
+	Nand (a = n10X10, b = n12X10, out = out[10]);
+
+	Xor (a = a[11], b = negateA, out = xn1X11);
+	Xor (a = b[11], b = negateB, out = xn2X11);
+	Nand (a = xn1X11, b = xn1X11, out = na11);
+	Nand (a = xn2X11, b = xn2X11, out = nb11);
+	Nand (a = xn1X11, b = xn2X11, out = n1X11);
+	Nand (a = n1X11, b = n1X11, out = n2X11);
+	Nand (a = na11, b = nb11, out = n3X11);
+	Nand (a = n1X11, b = ns0, out = n4X11);
+	Nand (a = n2X11, b = n2X11, out = n5X11);
+	Nand (a = n3X11, b = sel[0], out = n6X11);
+	Nand (a = n3X11, b = n3X11, out = n7X11);
+	Nand (a = n5X11, b = n6X11, out = n8X11);
+	Nand (a = n7X11, b = sel[0], out = n9X11);
+	Nand (a = ns1, b = n8X11, out = n10X11);
+	Nand (a = n9X11, b = n4X11, out = n11X11);
+	Nand (a = n11X11, b = sel[1], out = n12X11);
+	Nand (a = n10X11, b = n12X11, out = out[11]);
+
+	Xor (a = a[12], b = negateA, out = xn1X12);
+	Xor (a = b[12], b = negateB, out = xn2X12);
+	Nand (a = xn1X12, b = xn1X12, out = na12);
+	Nand (a = xn2X12, b = xn2X12, out = nb12);
+	Nand (a = xn1X12, b = xn2X12, out = n1X12);
+	Nand (a = n1X12, b = n1X12, out = n2X12);
+	Nand (a = na12, b = nb12, out = n3X12);
+	Nand (a = n1X12, b = ns0, out = n4X12);
+	Nand (a = n2X12, b = n2X12, out = n5X12);
+	Nand (a = n3X12, b = sel[0], out = n6X12);
+	Nand (a = n3X12, b = n3X12, out = n7X12);
+	Nand (a = n5X12, b = n6X12, out = n8X12);
+	Nand (a = n7X12, b = sel[0], out = n9X12);
+	Nand (a = ns1, b = n8X12, out = n10X12);
+	Nand (a = n9X12, b = n4X12, out = n11X12);
+	Nand (a = n11X12, b = sel[1], out = n12X12);
+	Nand (a = n10X12, b = n12X12, out = out[12]);
+
+	Xor (a = a[13], b = negateA, out = xn1X13);
+	Xor (a = b[13], b = negateB, out = xn2X13);
+	Nand (a = xn1X13, b = xn1X13, out = na13);
+	Nand (a = xn2X13, b = xn2X13, out = nb13);
+	Nand (a = xn1X13, b = xn2X13, out = n1X13);
+	Nand (a = n1X13, b = n1X13, out = n2X13);
+	Nand (a = na13, b = nb13, out = n3X13);
+	Nand (a = n1X13, b = ns0, out = n4X13);
+	Nand (a = n2X13, b = n2X13, out = n5X13);
+	Nand (a = n3X13, b = sel[0], out = n6X13);
+	Nand (a = n3X13, b = n3X13, out = n7X13);
+	Nand (a = n5X13, b = n6X13, out = n8X13);
+	Nand (a = n7X13, b = sel[0], out = n9X13);
+	Nand (a = ns1, b = n8X13, out = n10X13);
+	Nand (a = n9X13, b = n4X13, out = n11X13);
+	Nand (a = n11X13, b = sel[1], out = n12X13);
+	Nand (a = n10X13, b = n12X13, out = out[13]);
+
+	Xor (a = a[14], b = negateA, out = xn1X14);
+	Xor (a = b[14], b = negateB, out = xn2X14);
+	Nand (a = xn1X14, b = xn1X14, out = na14);
+	Nand (a = xn2X14, b = xn2X14, out = nb14);
+	Nand (a = xn1X14, b = xn2X14, out = n1X14);
+	Nand (a = n1X14, b = n1X14, out = n2X14);
+	Nand (a = na14, b = nb14, out = n3X14);
+	Nand (a = n1X14, b = ns0, out = n4X14);
+	Nand (a = n2X14, b = n2X14, out = n5X14);
+	Nand (a = n3X14, b = sel[0], out = n6X14);
+	Nand (a = n3X14, b = n3X14, out = n7X14);
+	Nand (a = n5X14, b = n6X14, out = n8X14);
+	Nand (a = n7X14, b = sel[0], out = n9X14);
+	Nand (a = ns1, b = n8X14, out = n10X14);
+	Nand (a = n9X14, b = n4X14, out = n11X14);
+	Nand (a = n11X14, b = sel[1], out = n12X14);
+	Nand (a = n10X14, b = n12X14, out = out[14]);
+
+	Xor (a = a[15], b = negateA, out = xn1X15);
+	Xor (a = b[15], b = negateB, out = xn2X15);
+	Nand (a = xn1X15, b = xn1X15, out = na15);
+	Nand (a = xn2X15, b = xn2X15, out = nb15);
+	Nand (a = xn1X15, b = xn2X15, out = n1X15);
+	Nand (a = n1X15, b = n1X15, out = n2X15);
+	Nand (a = na15, b = nb15, out = n3X15);
+	Nand (a = n1X15, b = ns0, out = n4X15);
+	Nand (a = n2X15, b = n2X15, out = n5X15);
+	Nand (a = n3X15, b = sel[0], out = n6X15);
+	Nand (a = n3X15, b = n3X15, out = n7X15);
+	Nand (a = n5X15, b = n6X15, out = n8X15);
+	Nand (a = n7X15, b = sel[0], out = n9X15);
+	Nand (a = ns1, b = n8X15, out = n10X15);
+	Nand (a = n9X15, b = n4X15, out = n11X15);
+	Nand (a = n11X15, b = sel[1], out = n12X15);
+	Nand (a = n10X15, b = n12X15, out = out[15]);
+}

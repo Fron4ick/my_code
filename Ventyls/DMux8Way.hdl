@@ -1,0 +1,50 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/DMux8Way.hdl
+
+/**
+ * 8-way demultiplexor:
+ * {a, b, c, d, e, f, g, h} = {in, 0, 0, 0, 0, 0, 0, 0} if sel == 000
+ *                            {0, in, 0, 0, 0, 0, 0, 0} if sel == 001
+ *                            etc.
+ *                            {0, 0, 0, 0, 0, 0, 0, in} if sel == 111
+ */
+
+CHIP DMux8Way {
+    IN in, sel[3];
+    OUT a, b, c, d, e, f, g, h;
+
+    PARTS:
+	Nand (a=in, b=sel[2], out=out01);
+	Nand (a=in, b=out01, out=out02);
+	Not (in=out01, out=x);
+	Not (in=out02, out=y);
+
+	Nand (a = y, b = sel[1], out = out1);
+	Nand (a = y, b = out1, out = out2);
+	Not (in = out1, out = out3);
+	Not (in = out2, out = out4);
+	Nand (a = out3, b = sel[0], out = out5);
+	Nand (a = out4, b = sel[0], out = out6);
+	Nand (a = out4, b = out6, out = out7);
+	Nand (a = out3, b = out5, out = out8);
+	Not (in = out7, out = a);
+	Not (in = out6, out = b);
+	Not (in = out8, out = c);
+	Not (in = out5, out = d);
+
+	Nand (a = x, b = sel[1], out = out1t);
+	Nand (a = x, b = out1t, out = out2t);
+	Not (in = out1t, out = out3t);
+	Not (in = out2t, out = out4t);
+	Nand (a = out3t, b = sel[0], out = out5t);
+	Nand (a = out4t, b = sel[0], out = out6t);
+	Nand (a = out4t, b = out6t, out = out7t);
+	Nand (a = out3t, b = out5t, out = out8t);
+	Not (in = out7t, out = e);
+	Not (in = out6t, out = f);
+	Not (in = out8t, out = g);
+	Not (in = out5t, out = h);
+
+}
