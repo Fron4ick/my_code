@@ -1,0 +1,98 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/03/a/Register.hdl
+
+/**
+ * 16-bit register:
+ * If load[t] == 1 then out[t+1] = in[t]
+ * else out does not change
+ */
+
+CHIP Register {
+    IN in[16], load;
+    OUT out[16];
+
+	PARTS:
+	Not(in=load, out=nload);
+
+    Nand(a=in[0],  b=load,  out=t1X0);
+    Nand(a=outX0, b=nload, out=t2X0);
+    Nand(a=t1X0,   b=t2X0,  out=nextX0);
+    DFF(in=nextX0, out = outX0, out=out[0]);
+
+    Nand(a=in[1],  b=load,  out=t1X1);
+    Nand(a=outX1, b=nload, out=t2X1);
+    Nand(a=t1X1,   b=t2X1,  out=nextX1);
+    DFF(in=nextX1, out = outX1, out=out[1]);
+
+    Nand(a=in[2],  b=load,  out=t1X2);
+    Nand(a=outX2, b=nload, out=t2X2);
+    Nand(a=t1X2,   b=t2X2,  out=nextX2);
+    DFF(in=nextX2, out = outX2, out=out[2]);
+
+    Nand(a=in[3],  b=load,  out=t1X3);
+    Nand(a=outX3, b=nload, out=t2X3);
+    Nand(a=t1X3,   b=t2X3,  out=nextX3);
+    DFF(in=nextX3, out = outX3, out=out[3]);
+
+    Nand(a=in[4],  b=load,  out=t1X4);
+    Nand(a=outX4, b=nload, out=t2X4);
+    Nand(a=t1X4,   b=t2X4,  out=nextX4);
+    DFF(in=nextX4, out = outX4, out=out[4]);
+
+    Nand(a=in[5],  b=load,  out=t1X5);
+    Nand(a=outX5, b=nload, out=t2X5);
+    Nand(a=t1X5,   b=t2X5,  out=nextX5);
+    DFF(in=nextX5, out = outX5, out=out[5]);
+
+    Nand(a=in[6],  b=load,  out=t1X6);
+    Nand(a=outX6, b=nload, out=t2X6);
+    Nand(a=t1X6,   b=t2X6,  out=nextX6);
+    DFF(in=nextX6, out = outX6, out=out[6]);
+
+    Nand(a=in[7],  b=load,  out=t1X7);
+    Nand(a=outX7, b=nload, out=t2X7);
+    Nand(a=t1X7,   b=t2X7,  out=nextX7);
+    DFF(in=nextX7, out = outX7, out=out[7]);
+
+    Nand(a=in[8],  b=load,  out=t1X8);
+    Nand(a=outX8, b=nload, out=t2X8);
+    Nand(a=t1X8,   b=t2X8,  out=nextX8);
+    DFF(in=nextX8, out = outX8, out=out[8]);
+
+    Nand(a=in[9],  b=load,  out=t1X9);
+    Nand(a=outX9, b=nload, out=t2X9);
+    Nand(a=t1X9,   b=t2X9,  out=nextX9);
+    DFF(in=nextX9, out = outX9, out=out[9]);
+
+    Nand(a=in[10],  b=load,  out=t1X10);
+    Nand(a=outX10, b=nload, out=t2X10);
+    Nand(a=t1X10,   b=t2X10,  out=nextX10);
+    DFF(in=nextX10, out = outX10, out=out[10]);
+
+    Nand(a=in[11],  b=load,  out=t1X11);
+    Nand(a=outX11, b=nload, out=t2X11);
+    Nand(a=t1X11,   b=t2X11,  out=nextX11);
+    DFF(in=nextX11, out = outX11, out=out[11]);
+
+    Nand(a=in[12],  b=load,  out=t1X12);
+    Nand(a=outX12, b=nload, out=t2X12);
+    Nand(a=t1X12,   b=t2X12,  out=nextX12);
+    DFF(in=nextX12, out = outX12, out=out[12]);
+
+    Nand(a=in[13],  b=load,  out=t1X13);
+    Nand(a=outX13, b=nload, out=t2X13);
+    Nand(a=t1X13,   b=t2X13,  out=nextX13);
+    DFF(in=nextX13, out = outX13, out=out[13]);
+
+    Nand(a=in[14],  b=load,  out=t1X14);
+    Nand(a=outX14, b=nload, out=t2X14);
+    Nand(a=t1X14,   b=t2X14,  out=nextX14);
+    DFF(in=nextX14, out = outX14, out=out[14]);
+
+    Nand(a=in[15],  b=load,  out=t1X15);
+    Nand(a=outX15, b=nload, out=t2X15);
+    Nand(a=t1X15,   b=t2X15,  out=nextX15);
+    DFF(in=nextX15, out = outX15, out=out[15]);
+}
