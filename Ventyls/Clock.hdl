@@ -16,4 +16,5 @@ CHIP Clock {
     Register(in=pretick, load=true, out=lastick, out=ticks);
     Inc16(in=lastick, out=newtick);
     Mux16(a=, b=, sel=, out=);
+    //Чепушня
  }
