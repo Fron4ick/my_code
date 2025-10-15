@@ -12,7 +12,7 @@ CHIP Clock {
     OUT ticks[16], loop;
 
     PARTS:
-    Not(in=reset, out=res);
-    Register(in=preout, load=res, out=lastout, out=ticks);
-
-}
+    Register(in=pretick, load=true, out=lastick, out=ticks);
+    Inc16(in=lastick, out=newtick);
+    Mux16(a=, b=, sel=, out=);
+ }
