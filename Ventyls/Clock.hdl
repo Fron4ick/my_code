@@ -1,19 +1,49 @@
-/*
-* На вход подается 16-битное число period и флаг сброса часов reset.
+/**
+ * Clock: синхронный 16-битный счётчик по модулю period.
+ * - period[16], reset (синхронный)
+ * - ticks[16] : 0 ≤ ticks < period
+ * - loop : 1, когда ticks == 0
+ *
+ * Замена Eq: используем ALU(incOut, period) и смотрим флаг zr — равны ли они.
+ */
 
-* У чипа два выхода:
-* 1. ticks (0 ≤ ticks < period) — сколько тиков прошло с начала периода,
-* 2. loop — равен единице, когда ticks равен нулю.
-* 
-* Если предыдущее значение ticks оказывается за пределами корректных 
-* значений (из-за уменьшения period), нужно вернуть ticks=0, loop=1
-*/
 CHIP Clock {
     IN period[16], reset;
     OUT ticks[16], loop;
 
     PARTS:
-    Register(in=pretick, load=true, out=lastick, out=ticks);
-    Inc16(in=lastick, out=newtick);
-    Mux16(a=, b=, sel=, out=);
- }
+    // регистр — текущее значение ticks
+    Register(in=preout, load=true, out=lastout, out=ticks);
+
+    // кандидат = lastout + 1
+    Inc16(in=lastout, out=incOut);
+
+    // === сравнение incOut == period через ALU (замена Eq) ===
+    // ALU возвращает флаг zr==1 когда (incOut - period) == 0
+    // Пример конфигурации ALU: та же, что использовали для вычисления разности ранее.
+    ALU(x=incOut, y=period,
+        zx=false, nx=true, zy=false, ny=false, f=true, no=true,
+        out=diffIncPeriod, zr=isWrap, ng=unusedNg);
+
+    // === проверка: lastout < period через ALU (для обнаружения некорректного prev ticks) ===
+    // Используем ALU: lastout - period и смотрим флаг ng (ng==1 => lastout < period)
+    ALU(x=lastout, y=period,
+        zx=false, nx=true, zy=false, ny=false, f=true, no=true,
+        out=diffLastPeriod, zr=unusedZr2, ng=ng);
+
+    // notNg = !ng
+    Not(in=ng, out=notNg);
+
+    // shouldZero = reset OR notNg OR isWrap
+    Or(a=notNg, b=reset, out=tmpOr1);
+    Or(a=tmpOr1, b=isWrap, out=shouldZero);
+
+    // preout = shouldZero ? 0 : incOut
+    Mux16(a=incOut, b=false, sel=shouldZero, out=preout);
+
+    // loop = (ticks == 0)
+    Or8Way(in=lastout[0..7], out=orLow);       // если ваш HDL не поддерж. такой синтаксис — распишите по битам
+    Or8Way(in=lastout[8..15], out=orHigh);
+    Or(a=orLow, b=orHigh, out=anyBit);
+    Not(in=anyBit, out=loop);
+}
