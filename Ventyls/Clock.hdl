@@ -12,38 +12,7 @@ CHIP Clock {
     OUT ticks[16], loop;
 
     PARTS:
-    // регистр — текущее значение ticks
-    Register(in=preout, load=true, out=lastout, out=ticks);
+    Not(in=reset, out=res);
+    Register(in=preout, load=res, out=lastout, out=ticks);
 
-    // кандидат = lastout + 1
-    Inc16(in=lastout, out=incOut);
-
-    // === сравнение incOut == period через ALU (замена Eq) ===
-    // ALU возвращает флаг zr==1 когда (incOut - period) == 0
-    // Пример конфигурации ALU: та же, что использовали для вычисления разности ранее.
-    ALU(x=incOut, y=period,
-        zx=false, nx=true, zy=false, ny=false, f=true, no=true,
-        out=diffIncPeriod, zr=isWrap, ng=unusedNg);
-
-    // === проверка: lastout < period через ALU (для обнаружения некорректного prev ticks) ===
-    // Используем ALU: lastout - period и смотрим флаг ng (ng==1 => lastout < period)
-    ALU(x=lastout, y=period,
-        zx=false, nx=true, zy=false, ny=false, f=true, no=true,
-        out=diffLastPeriod, zr=unusedZr2, ng=ng);
-
-    // notNg = !ng
-    Not(in=ng, out=notNg);
-
-    // shouldZero = reset OR notNg OR isWrap
-    Or(a=notNg, b=reset, out=tmpOr1);
-    Or(a=tmpOr1, b=isWrap, out=shouldZero);
-
-    // preout = shouldZero ? 0 : incOut
-    Mux16(a=incOut, b=false, sel=shouldZero, out=preout);
-
-    // loop = (ticks == 0)
-    Or8Way(in=lastout[0..7], out=orLow);       // если ваш HDL не поддерж. такой синтаксис — распишите по битам
-    Or8Way(in=lastout[8..15], out=orHigh);
-    Or(a=orLow, b=orHigh, out=anyBit);
-    Not(in=anyBit, out=loop);
 }
