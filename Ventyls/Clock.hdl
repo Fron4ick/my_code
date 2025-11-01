@@ -12,7 +12,28 @@ CHIP Clock {
     OUT ticks[16], loop;
 
     PARTS:
-    Register(in=pretick, load=true, out=lastick, out=ticks);
-    Inc16(in=lastick, out=newtick);
-    Mux16(a=, b=, sel=, out=);
- }
+    // Регистр для хранения текущего ticks
+    Register(in=newTick, load=true, out=lastTick, out=ticks);
+    
+    // прошлое значение + 1
+    Inc16(in=lastTick, out=incLastTick);
+    
+    // Проверка на достижение периода
+    // Если (lastTick + 1) >= period, то счётчик = 0
+    Add16(a=incLastTick, b=period, out=temp, out[15]=carry);
+    
+    // carry = 1 если произошло переполнение (incLastTick + period >= 65536)
+    // Зачит incLastTick >= (65536 - period)
+    // Упрощаем проверку: если incLastTick >= period
+    Not16(in=period, out=notPeriod);
+    Add16(a=incLastTick, b=notPeriod, out=check, out[15]=isGreaterOrEqual);
+    
+    // Сбрасываем если достигли периода или при внешнем сбросе
+    Or(a=isGreaterOrEqual, b=reset, out=shouldReset);
+    
+    // Выбираем следующее значение: увеличиваем или сбрасываем в 0
+    Mux16(a=incLastTick, b=false, sel=shouldReset, out=newTick);
+    
+    // Сигнал loop указывает на завершение цикла
+    DFF(in=shouldReset, out=loop);
+}

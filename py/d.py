@@ -10,3 +10,5 @@ for i in range(1, 100 + 1):
     delitely_i = delitely(i)
     if len(delitely_i) >= 10:
         print(i)
+
+print('Hello, привет!')
