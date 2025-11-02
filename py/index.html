@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Счётчик очков - Тысяча</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .setup-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .player-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: #2a5298;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e3c72;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-warning:hover {
+            background: #ffb300;
+        }
+
+        .game-section {
+            display: none;
+        }
+
+        .dealer-info {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .dealer-info h3 {
+            color: #2a5298;
+            margin-bottom: 10px;
+        }
+
+        .dealer-name {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+
+        .scoreboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .player-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+        }
+
+        .player-card.on-barrel {
+            background: linear-gradient(135deg, #ffd93d 0%, #f6c23e 100%);
+            border: 4px solid #ff9800;
+        }
+
+        .player-card.dealer {
+            border: 3px solid #ff6b6b;
+        }
+
+        .player-name {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .player-score {
+            font-size: 3em;
+            font-weight: 700;
+            margin: 20px 0;
+            color: #2a5298;
+        }
+
+        .player-card.on-barrel .player-score {
+            color: #ff6b00;
+        }
+
+        .status-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+            min-height: 30px;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-bolt {
+            background: #ff4444;
+            color: white;
+        }
+
+        .badge-barrel {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge-dealer {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .badge-attempt {
+            background: #2196F3;
+            color: white;
+        }
+
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .score-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .score-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .score-input-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            text-align: center;
+        }
+
+        .score-input-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .history {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .history h2 {
+            margin-bottom: 15px;
+            color: #2a5298;
+        }
+
+        .history-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-details {
+            flex: 1;
+        }
+
+        .history-round {
+            font-weight: 700;
+            color: #2a5298;
+            margin-bottom: 5px;
+        }
+
+        .history-scores {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .undo-btn {
+            background: #ffc107;
+            color: #333;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .undo-btn:hover {
+            background: #ffb300;
+        }
+
+        .winner-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .winner-content {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+        }
+
+        .winner-content h2 {
+            font-size: 3em;
+            color: #2a5298;
+            margin-bottom: 20px;
+        }
+
+        .winner-content p {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .scoreboard {
+                grid-template-columns: 1fr;
+            }
+
+            .score-inputs {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🃏 Тысяча - Счётчик очков</h1>
+
+        <div class="setup-section" id="setupSection">
+            <h2 style="margin-bottom: 20px; color: #2a5298;">Начало игры</h2>
+            <div class="player-inputs">
+                <div class="input-group">
+                    <label for="player1">Игрок 1:</label>
+                    <input type="text" id="player1" placeholder="Имя игрока 1" value="Игрок 1">
+                </div>
+                <div class="input-group">
+                    <label for="player2">Игрок 2:</label>
+                    <input type="text" id="player2" placeholder="Имя игрока 2" value="Игрок 2">
+                </div>
+                <div class="input-group">
+                    <label for="player3">Игрок 3:</label>
+                    <input type="text" id="player3" placeholder="Имя игрока 3" value="Игрок 3">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="startGame()">Начать игру</button>
+        </div>
+
+        <div class="game-section" id="gameSection">
+            <div class="dealer-info">
+                <h3>Сдает карты:</h3>
+                <div class="dealer-name" id="dealerName"></div>
+            </div>
+
+            <div class="scoreboard" id="scoreboard"></div>
+
+            <div class="controls">
+                <h3 style="margin-bottom: 15px; color: #2a5298;">Раунд <span id="roundNumber">1</span></h3>
+                
+                <div class="score-inputs" id="scoreInputs"></div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="addScores()">Добавить очки</button>
+                    <button class="btn btn-warning" onclick="nextDealer()">Следующий раздающий</button>
+                    <button class="btn btn-danger" onclick="resetGame()">Новая игра</button>
+                </div>
+            </div>
+
+            <div class="history">
+                <h2>История раундов</h2>
+                <div id="historyList"></div>
+            </div>
+        </div>
+
+        <div class="winner-modal" id="winnerModal">
+            <div class="winner-content">
+                <h2>🎉 Победа! 🎉</h2>
+                <p id="winnerText"></p>
+                <button class="btn btn-primary" onclick="closeWinnerModal()">Закрыть</button>
+                <button class="btn btn-success" onclick="resetGame()">Новая игра</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let players = [];
+        let currentRound = 1;
+        let history = [];
+        let dealerIndex = 0;
+
+        function startGame() {
+            const p1 = document.getElementById('player1').value.trim() || 'Игрок 1';
+            const p2 = document.getElementById('player2').value.trim() || 'Игрок 2';
+            const p3 = document.getElementById('player3').value.trim() || 'Игрок 3';
+
+            players = [
+                { name: p1, score: 0, bolts: 0, onBarrel: false, barrelAttempts: 0, barrelsFailed: 0 },
+                { name: p2, score: 0, bolts: 0, onBarrel: false, barrelAttempts: 0, barrelsFailed: 0 },
+                { name: p3, score: 0, bolts: 0, onBarrel: false, barrelAttempts: 0, barrelsFailed: 0 }
+            ];
+
+            currentRound = 1;
+            history = [];
+            dealerIndex = 0;
+
+            document.getElementById('setupSection').style.display = 'none';
+            document.getElementById('gameSection').style.display = 'block';
+
+            renderAll();
+        }
+
+        function renderAll() {
+            renderScoreboard();
+            renderScoreInputs();
+            renderHistory();
+            document.getElementById('dealerName').textContent = players[dealerIndex].name;
+        }
+
+        function renderScoreboard() {
+            const scoreboard = document.getElementById('scoreboard');
+            scoreboard.innerHTML = '';
+
+            players.forEach((player, index) => {
+                const card = document.createElement('div');
+                card.className = 'player-card';
+                
+                if (player.onBarrel) card.classList.add('on-barrel');
+                if (index === dealerIndex) card.classList.add('dealer');
+
+                let badges = '';
+                if (index === dealerIndex) badges += '<span class="badge badge-dealer">РАЗДАЕТ</span>';
+                if (player.bolts > 0) badges += `<span class="badge badge-bolt">Болтов: ${player.bolts}</span>`;
+                if (player.onBarrel) {
+                    badges += '<span class="badge badge-barrel">НА БОЧКЕ</span>';
+                    badges += `<span class="badge badge-attempt">Попытка ${player.barrelAttempts + 1}/3</span>`;
+                }
+                if (player.barrelsFailed > 0) {
+                    badges += `<span class="badge" style="background: #9e9e9e; color: white;">Бочек слетел: ${player.barrelsFailed}</span>`;
+                }
+
+                card.innerHTML = `
+                    <div class="player-name">${player.name}</div>
+                    <div class="player-score">${player.score}</div>
+                    <div class="status-badges">${badges}</div>
+                `;
+
+                scoreboard.appendChild(card);
+            });
+
+            checkWinner();
+        }
+
+        function renderScoreInputs() {
+            const container = document.getElementById('scoreInputs');
+            container.innerHTML = '';
+
+            players.forEach((player, index) => {
+                const group = document.createElement('div');
+                group.className = 'score-input-group';
+                group.innerHTML = `
+                    <label>${player.name}</label>
+                    <input type="number" id="score${index}" value="0" step="5">
+                `;
+                container.appendChild(group);
+            });
+
+            document.getElementById('roundNumber').textContent = currentRound;
+        }
+
+        function addScores() {
+            const roundData = { round: currentRound, scores: [], action: 'Очки', dealer: players[dealerIndex].name };
+            let changes = [];
+
+            players.forEach((player, index) => {
+                const input = document.getElementById(`score${index}`);
+                const points = parseInt(input.value) || 0;
+                
+                let actualPoints = points;
+                let note = '';
+
+                // Проверка на болт (0 очков)
+                if (points === 0) {
+                    player.bolts++;
+                    note = ` (болт ${player.bolts}/3)`;
+                    
+                    if (player.bolts >= 3) {
+                        actualPoints = -120;
+                        player.bolts = 0;
+                        note = ' (3 болта = -120)';
+                    } else {
+                        actualPoints = 0;
+                    }
+                }
+
+                // Если игрок на бочке
+                if (player.onBarrel) {
+                    player.barrelAttempts++;
+                    
+                    if (points >= 120) {
+                        // Победа!
+                        player.score = 1000;
+                        actualPoints = 0;
+                        note = ' (Выиграл с бочки! 🎉)';
+                        player.onBarrel = false;
+                    } else {
+                        // Не набрал нужные очки
+                        if (player.barrelAttempts >= 3) {
+                            // Слетел с бочки
+                            player.barrelsFailed++;
+                            player.barrelAttempts = 0;
+                            
+                            if (player.barrelsFailed >= 3) {
+                                // Третья бочка - обнуление
+                                player.score = 0;
+                                player.barrelsFailed = 0;
+                                actualPoints = 0;
+                                note = ' (Слетел с 3-й бочки - обнуление)';
+                            } else {
+                                // Обычное слетание
+                                actualPoints = -120;
+                                player.score += actualPoints;
+                                note = ` (Слетел с бочки ${player.barrelsFailed}/3)`;
+                            }
+                            player.onBarrel = false;
+                        } else {
+                            // Остается на бочке, очки не начисляются
+                            actualPoints = 0;
+                            note = ` (На бочке, попытка ${player.barrelAttempts}/3)`;
+                        }
+                    }
+                } else {
+                    player.score += actualPoints;
+                    
+                    // Проверка на 555 и -555 (самосвал)
+                    if (player.score === 555 || player.score === -555) {
+                        player.score = 0;
+                        note = ' (Самосвал! Сброс на 0)';
+                    }
+                    
+                    // Проверка на бочку (880)
+                    if (player.score >= 880 && player.score < 1000) {
+                        // Проверяем, есть ли уже кто-то на бочке
+                        const otherOnBarrel = players.find((p, i) => i !== index && p.onBarrel);
+                        if (otherOnBarrel) {
+                            // Сбрасываем предыдущего
+                            otherOnBarrel.onBarrel = false;
+                            otherOnBarrel.barrelAttempts = 0;
+                            otherOnBarrel.barrelsFailed++;
+                            otherOnBarrel.score -= 120;
+                            changes.push(`${otherOnBarrel.name} слетел с бочки (-120)`);
+                        }
+                        
+                        player.score = 880;
+                        player.onBarrel = true;
+                        player.barrelAttempts = 0;
+                        note = ' (На бочку!)';
+                    }
+                }
+
+                roundData.scores.push({ 
+                    name: player.name, 
+                    points: actualPoints, 
+                    total: player.score,
+                    note: note
+                });
+                
+                input.value = 0;
+            });
+
+            if (changes.length > 0) {
+                roundData.action += ' (' + changes.join(', ') + ')';
+            }
+
+            history.push(roundData);
+            currentRound++;
+            
+            // Переход к следующему раздающему
+            nextDealer();
+        }
+
+        function nextDealer() {
+            dealerIndex = (dealerIndex + 1) % players.length;
+            renderAll();
+        }
+
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+
+            if (history.length === 0) {
+                historyList.innerHTML = '<p style="color: #999; text-align: center;">История пока пуста</p>';
+                return;
+            }
+
+            history.slice().reverse().forEach((item, reverseIndex) => {
+                const actualIndex = history.length - 1 - reverseIndex;
+                const div = document.createElement('div');
+                div.className = 'history-item';
+
+                const scoresText = item.scores.map(s => {
+                    const sign = s.points > 0 ? '+' : '';
+                    return `${s.name}: ${sign}${s.points}${s.note || ''} (${s.total})`;
+                }).join(' | ');
+
+                div.innerHTML = `
+                    <div class="history-details">
+                        <div class="history-round">Раунд ${item.round} - ${item.action} (Сдавал: ${item.dealer})</div>
+                        <div class="history-scores">${scoresText}</div>
+                    </div>
+                    <button class="undo-btn" onclick="undoRound(${actualIndex})">Отменить</button>
+                `;
+
+                historyList.appendChild(div);
+            });
+        }
+
+        function undoRound(index) {
+            if (index !== history.length - 1) {
+                alert('Можно отменить только последний раунд!');
+                return;
+            }
+
+            if (!confirm('Отменить последний раунд?')) return;
+
+            history.pop();
+            currentRound--;
+            dealerIndex = (dealerIndex - 1 + players.length) % players.length;
+
+            // Пересчитываем все с начала
+            players.forEach(p => {
+                p.score = 0;
+                p.bolts = 0;
+                p.onBarrel = false;
+                p.barrelAttempts = 0;
+                p.barrelsFailed = 0;
+            });
+
+            let tempDealerIndex = 0;
+            history.forEach(round => {
+                round.scores.forEach(score => {
+                    const player = players.find(p => p.name === score.name);
+                    if (player) {
+                        player.score = score.total;
+                        
+                        if (score.note && score.note.includes('болт')) {
+                            const boltMatch = score.note.match(/болт (\d+)\/3/);
+                            if (boltMatch) {
+                                player.bolts = parseInt(boltMatch[1]);
+                            }
+                        }
+                        
+                        if (score.note && score.note.includes('На бочку')) {
+                            player.onBarrel = true;
+                            player.barrelAttempts = 0;
+                        }
+                        
+                        if (score.note && score.note.includes('На бочке, попытка')) {
+                            player.onBarrel = true;
+                            const attemptMatch = score.note.match(/попытка (\d+)\/3/);
+                            if (attemptMatch) {
+                                player.barrelAttempts = parseInt(attemptMatch[1]);
+                            }
+                        }
+                        
+                        if (score.note && score.note.includes('Слетел с бочки')) {
+                            const barrelMatch = score.note.match(/бочки (\d+)\/3/);
+                            if (barrelMatch) {
+                                player.barrelsFailed = parseInt(barrelMatch[1]);
+                            }
+                        }
+                    }
+                });
+                
+                tempDealerIndex = (tempDealerIndex + 1) % players.length;
+            });
+
+            renderAll();
+        }
+
+        function checkWinner() {
+            const winner = players.find(p => p.score >= 1000);
+            if (winner) {
+                document.getElementById('winnerText').textContent = 
+                    `${winner.name} победил(а) с ${winner.score} очками!`;
+                document.getElementById('winnerModal').style.display = 'flex';
+            }
+        }
+
+        function closeWinnerModal() {
+            document.getElementById('winnerModal').style.display = 'none';
+        }
+
+        function resetGame() {
+            if (confirm('Начать новую игру? Текущий прогресс будет потерян.')) {
+                closeWinnerModal();
+                document.getElementById('setupSection').style.display = 'block';
+                document.getElementById('gameSection').style.display = 'none';
+                players = [];
+                currentRound = 1;
+                history = [];
+                dealerIndex = 0;
+            }
+        }
+    </script>
+</body>
+</html>
