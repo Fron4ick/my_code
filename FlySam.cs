@@ -1,203 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Drawing;
 
-class Move
+namespace Fractals;
+
+internal static class DragonFractalTask
 {
-    public static void Main()
-    {
-        var firstArray = new[] { 1, 2, 4, 5 };
-        var secondArray = new[] { 1, 3, 4, 6 };
-        
-        Console.WriteLine("Объединение: " + ArrayToString(UnificationArray(firstArray, secondArray)));
-        Console.WriteLine("Пересечение: " + ArrayToString(IntersectionArray(firstArray, secondArray)));
-        Console.WriteLine("Разность: " + ArrayToString(DifferenceArray(firstArray, secondArray)));
-    }
+	public static void DrawDragonFractal(Pixels pixels, int iterationsCount, int seed)
+	{
+		var random = new Random(seed);
+		double x = 1;
+		double y = 0;
 
-    public static int[] UnificationArray(int[] firstArray, int[] secondArray)
-    {
-        // Создаем словарь для подсчета частот
-        Dictionary<int, int> frequency = new Dictionary<int, int>();
-        
-        // Подсчитываем частоты из первого массива
-        for (int i = 0; i < firstArray.Length; i++)
-        {
-            int num = firstArray[i];
-            if (frequency.ContainsKey(num))
-            {
-                frequency[num]++;
-            }
-            else
-            {
-                frequency[num] = 1;
-            }
-        }
-        
-        // Для второго массива берем максимальное количество вхождений
-        for (int i = 0; i < secondArray.Length; i++)
-        {
-            int num = secondArray[i];
-            if (frequency.ContainsKey(num))
-            {
-                if (frequency[num] < 1)
-                {
-                    frequency[num] = 1;
-                }
-            }
-            else
-            {
-                frequency[num] = 1;
-            }
-        }
-        
-        // Преобразуем словарь обратно в массив
-        List<int> result = new List<int>();
-        foreach (var pair in frequency)
-        {
-            for (int i = 0; i < pair.Value; i++)
-            {
-                result.Add(pair.Key);
-            }
-        }
-        
-        return result.ToArray();
-    }
+		pixels.SetPixel(x, y);
+		GeneratePoints(pixels, random, iterationsCount, x, y);
+	}
 
-    public static int[] IntersectionArray(int[] firstArray, int[] secondArray)
-    {
-        // Создаем словари для подсчета частот
-        Dictionary<int, int> freq1 = new Dictionary<int, int>();
-        Dictionary<int, int> freq2 = new Dictionary<int, int>();
-        
-        // Подсчитываем частоты для первого массива
-        for (int i = 0; i < firstArray.Length; i++)
-        {
-            int num = firstArray[i];
-            if (freq1.ContainsKey(num))
-            {
-                freq1[num]++;
-            }
-            else
-            {
-                freq1[num] = 1;
-            }
-        }
-        
-        // Подсчитываем частоты для второго массива
-        for (int i = 0; i < secondArray.Length; i++)
-        {
-            int num = secondArray[i];
-            if (freq2.ContainsKey(num))
-            {
-                freq2[num]++;
-            }
-            else
-            {
-                freq2[num] = 1;
-            }
-        }
-        
-        // Для пересечения берем минимальное количество вхождений
-        List<int> result = new List<int>();
-        foreach (var pair in freq1)
-        {
-            int num = pair.Key;
-            if (freq2.ContainsKey(num))
-            {
-                int minCount = pair.Value < freq2[num] ? pair.Value : freq2[num];
-                for (int i = 0; i < minCount; i++)
-                {
-                    result.Add(num);
-                }
-            }
-        }
-        
-        return result.ToArray();
-    }
+	public static void GeneratePoints(Pixels pixels, Random random, int iterationsCount, double startX, double startY)
+	{
+		double x = startX;
+		double y = startY;
 
-    public static int[] DifferenceArray(int[] firstArray, int[] secondArray)
-    {
-        // Создаем словари для подсчета частот
-        Dictionary<int, int> freq1 = new Dictionary<int, int>();
-        Dictionary<int, int> freq2 = new Dictionary<int, int>();
-        
-        // Подсчитываем частоты для первого массива
-        for (int i = 0; i < firstArray.Length; i++)
-        {
-            int num = firstArray[i];
-            if (freq1.ContainsKey(num))
-            {
-                freq1[num]++;
-            }
-            else
-            {
-                freq1[num] = 1;
-            }
-        }
-        
-        // Подсчитываем частоты для второго массива
-        for (int i = 0; i < secondArray.Length; i++)
-        {
-            int num = secondArray[i];
-            if (freq2.ContainsKey(num))
-            {
-                freq2[num]++;
-            }
-            else
-            {
-                freq2[num] = 1;
-            }
-        }
-        
-        // Для разности берем разность максимального и минимального количества вхождений
-        List<int> result = new List<int>();
-        
-        // Обрабатываем числа из первого массива
-        foreach (var pair in freq1)
-        {
-            int num = pair.Key;
-            int count1 = pair.Value;
-            int count2 = freq2.ContainsKey(num) ? freq2[num] : 0;
-            
-            int diff = count1 - count2;
-            if (diff > 0)
-            {
-                for (int i = 0; i < diff; i++)
-                {
-                    result.Add(num);
-                }
-            }
-        }
-        
-        // Обрабатываем числа из второго массива, которых нет в первом
-        foreach (var pair in freq2)
-        {
-            int num = pair.Key;
-            if (!freq1.ContainsKey(num))
-            {
-                for (int i = 0; i < pair.Value; i++)
-                {
-                    result.Add(num);
-                }
-            }
-        }
-        
-        return result.ToArray();
-    }
+		for (int i = 0; i < iterationsCount; i++)
+		{
+			var transformType = random.Next(2);
+			var newPoint = Transform(x, y, transformType);
+			
+			x = newPoint.Item1;
+			y = newPoint.Item2;
+			pixels.SetPixel(x, y);
+		}
+	}
 
-    // Вспомогательный метод для красивого вывода массива
-    public static string ArrayToString(int[] array)
-    {
-        if (array == null || array.Length == 0)
-            return "[]";
-        
-        string result = "[";
-        for (int i = 0; i < array.Length; i++)
+	public static Tuple<double, double> Transform(double x, double y, int transformType)
+	{
+        if (transformType == 0)
         {
-            result += array[i];
-            if (i < array.Length - 1)
-                result += ", ";
+            double newX = (x - y) / 2.0;
+            double newY = (x + y) / 2.0;
+            return Tuple.Create(newX, newY);
         }
-        result += "]";
-        return result;
-    }
+        else
+        {
+            double newX = (-x - y) / 2.0 + 1;
+            double newY = (x - y) / 2.0;
+            return Tuple.Create(newX, newY);
+        }
+	}
 }
