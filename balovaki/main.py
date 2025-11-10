@@ -1,409 +1,274 @@
-import pygame
+import tkinter as tk
+from tkinter import messagebox
+import numpy as np
+from PIL import Image, ImageDraw, ImageFilter
 import os
+from datetime import datetime
 import random
 import math
-from datetime import datetime
-from typing import Tuple, List, Optional, Dict
 
-class AdvancedPixelCanvas:
-    """
-    Продвинутый пиксельный холст с системой микширования цветов и интерфейсом.
-    """
-    
-    def __init__(self, canvas_size: int = 64, window_size: int = 600,
-                 background_seed: str = "a1b2c3", brush_seed: str = "d4e5f6"):
-        """
-        Инициализация холста с системой микширования цветов.
+# --- Конфигурация ---
+CANVAS_SIZE = 64  # Размер виртуального холста в пикселях
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
+PIXEL_SIZE = 8  # Размер одного пикселя на экране
+
+# Базовые цвета для палитры (RGB)
+BASE_COLORS = [
+    (255, 255, 255),  # Белый
+    (0, 0, 0),        # Черный
+    (255, 0, 0),      # Красный
+    (0, 255, 0),      # Зеленый
+    (0, 0, 255),      # Синий
+    (255, 255, 0),    # Желтый
+    (255, 0, 255),    # Пурпурный
+    (0, 255, 255),    # Циан
+    (128, 128, 128),  # Серый
+    (255, 128, 0),    # Оранжевый
+    (128, 0, 255),    # Фиолетовый
+    (0, 128, 128),    # Бирюзовый
+]
+
+class PixelArtEditor:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Пиксель-арт редактор 64×64")
         
-        Args:
-            canvas_size: Размер виртуального холста
-            window_size: Размер окна приложения
-            background_seed: Сид для генерации фонового градиента
-            brush_seed: Сид для генерации кисти с градиентом
-        """
-        self.canvas_size = canvas_size
-        self.window_size = window_size
-        self.ui_width = 120  # Ширина левой панели с интерфейсом
-        
-        # Валидация сидов
-        self.background_seed = self._validate_seed(background_seed, "background")
-        self.brush_seed = self._validate_seed(brush_seed, "brush")
-        
-        # Проверка что сиды не совпадают по условиям
-        self._validate_seeds_difference()
-        
-        # Генерация цветовых палитр из сидов
-        self.background_colors = self._generate_colors_from_seed(self.background_seed)
-        self.brush_colors = self._generate_colors_from_seed(self.brush_seed)
-        
-        # Текущие цвета
-        self.current_bg_color = self.background_colors[0]
-        self.current_brush_color = self.brush_colors[0]
-        self.mix_brush_color = self._generate_mix_color(self.brush_seed)
-        self.mix_bg_color = self._generate_mix_color(self.background_seed)
-        
-        # Настройки кисти
-        self.brush_size = 2
-        self.brush_hardness = 0.7  # Жесткость кисти (0-1)
-        
-        # Инициализация Pygame
-        self._initialize_pygame()
-        
-        # Создание элементов интерфейса
-        self._create_ui_elements()
-        
-    def _validate_seed(self, seed: str, seed_type: str) -> str:
-        """Валидация и нормализация сида."""
-        if len(seed) != 6:
-            raise ValueError(f"Сид {seed_type} должен содержать ровно 6 hex-символов")
-        
-        # Проверяем что все символы валидные hex
-        try:
-            int(seed, 16)
-        except ValueError:
-            raise ValueError(f"Сид {seed_type} содержит невалидные hex-символы")
-        
-        return seed.lower()
-    
-    def _validate_seeds_difference(self) -> None:
-        """Проверяет что сиды отличаются по первому символу и минимум по двум цветовым."""
-        if self.background_seed[0] == self.brush_seed[0]:
-            raise ValueError("Сид фона и кисти не могут совпадать по первому символу")
-        
-        # Сравниваем цветовые символы (позиции 1-5)
-        differences = 0
-        for i in range(1, 6):
-            if self.background_seed[i] != self.brush_seed[i]:
-                differences += 1
-        
-        if differences < 2:
-            raise ValueError("Сид фона и кисти должны отличаться минимум по 2 цветовым символам")
-    
-    def _generate_colors_from_seed(self, seed: str) -> List[Tuple[int, int, int]]:
-        """Генерирует 5 цветов из сида."""
-        colors = []
-        angle = (int(seed[0], 16) * math.pi / 12)  # Угол наклона
-        
-        for i in range(5):
-            color_key = int(seed[i+1], 16)  # Берем символы 1-5 для цветов
-            
-            # Создаем цвет на основе ключа и угла
-            r = int(128 + 127 * math.cos(angle + color_key * 0.8))
-            g = int(128 + 127 * math.sin(angle + color_key * 1.2))
-            b = int(128 + 127 * math.cos(angle + color_key * 1.6))
-            
-            colors.append((r, g, b))
-        
-        return colors
-    
-    def _generate_mix_color(self, seed: str) -> Tuple[int, int, int]:
-        """Генерирует микс-цвет на основе всего сида."""
-        angle = (int(seed[0], 16) * math.pi / 12)
-        
-        # Смешиваем все цветовые компоненты
-        total_r, total_g, total_b = 0, 0, 0
-        
-        for i in range(5):
-            color_key = int(seed[i+1], 16)
-            weight = (i + 1) / 15  # Вес каждого цвета
-            
-            total_r += weight * (128 + 127 * math.cos(angle + color_key * 0.8))
-            total_g += weight * (128 + 127 * math.sin(angle + color_key * 1.2))
-            total_b += weight * (128 + 127 * math.cos(angle + color_key * 1.6))
-        
-        return (int(total_r), int(total_g), int(total_b))
-    
-    def _initialize_pygame(self) -> None:
-        """Инициализация Pygame с настройками."""
-        pygame.init()
-        
-        # Убираем иконку pygame
-        pygame.display.set_icon(pygame.Surface((1, 1)))
-        
-        # Создаем окно
-        total_width = self.window_size + self.ui_width
-        self._screen = pygame.display.set_mode((total_width, self.window_size))
-        pygame.display.set_caption("Advanced Pixel Canvas")
-        
-        # Создаем холст для рисования
-        self._canvas = pygame.Surface((self.canvas_size, self.canvas_size))
-        self._canvas.fill(self.current_bg_color)
-        
-        # Создаем папку для сохранения
-        self._create_save_directory()
-        
-        # Счетчик сохранений
-        self._save_counter = 0
-    
-    def _create_save_directory(self) -> None:
-        """Создает папку для сохранения изображений."""
-        script_dir = os.path.dirname(os.path.abspath(__file__))
+        # Создание директории для сохранения
+        script_dir = os.path.dirname(os.path.abspath(__file__)) or '.'
         date_str = datetime.now().strftime("%S.%M.%H.%d.%m.%y")
-        self._save_directory = os.path.join(script_dir, f'imgs_{date_str}')
-        os.makedirs(self._save_directory, exist_ok=True)
+        self.save_directory = os.path.join(script_dir, f'imgs_{date_str}')
+        os.makedirs(self.save_directory, exist_ok=True)
+        self.save_counter = 0
+        
+        # Холст (numpy array для быстрой работы)
+        self.canvas_data = np.ones((CANVAS_SIZE, CANVAS_SIZE, 3), dtype=np.uint8) * 255
+        
+        # Текущие цвета и сиды
+        self.current_brush_color = (0, 0, 0)
+        self.current_bg_color = (255, 255, 255)
+        self.brush_seed = self.generate_seed()
+        self.bg_seed = self.generate_seed()
+        self.ensure_seeds_different()
+        
+        self.drawing = False
+        
+        # UI
+        self.setup_ui()
+        self.update_canvas_display()
+        
+        # Биндинги клавиш
+        self.root.bind('s', lambda e: self.save_and_new())
+        self.root.bind('S', lambda e: self.save_and_new())
+        self.root.bind('c', lambda e: self.clear_canvas())
+        self.root.bind('C', lambda e: self.clear_canvas())
+        self.root.bind('v', lambda e: self.quit_app(False))
+        self.root.bind('V', lambda e: self.quit_app(True))
+        
+    def generate_seed(self):
+        """Генерирует сид из 6 hex символов"""
+        angle_idx = random.randint(0, 12)  # 0 до C (12)
+        colors = [random.randint(0, len(BASE_COLORS)-1) for _ in range(5)]
+        return f"{angle_idx:X}{colors[0]:X}{colors[1]:X}{colors[2]:X}{colors[3]:X}{colors[4]:X}"
     
-    def _create_ui_elements(self) -> None:
-        """Создает элементы интерфейса."""
-        self.buttons = {
-            'save': {'rect': pygame.Rect(10, 10, 100, 30), 'text': 'Save (S)', 'action': 'save'},
-            'clear': {'rect': pygame.Rect(10, 50, 100, 30), 'text': 'Clear (C)', 'action': 'clear'},
-            'quit': {'rect': pygame.Rect(10, 90, 100, 30), 'text': 'Quit (V)', 'action': 'quit'},
-            'save_quit': {'rect': pygame.Rect(10, 130, 100, 30), 'text': 'Save+Quit', 'action': 'save_quit'},
-        }
-        
-        # Области выбора цвета кисти
-        self.brush_color_rects = []
-        for i in range(5):
-            rect = pygame.Rect(10, 180 + i * 40, 40, 30)
-            self.brush_color_rects.append({'rect': rect, 'color': self.brush_colors[i]})
-        
-        # Область миксовой кисти
-        self.mix_brush_rect = pygame.Rect(10, 180 + 5 * 40, 40, 30)
-        
-        # Области выбора цвета фона
-        self.bg_color_rects = []
-        for i in range(5):
-            rect = pygame.Rect(60, 180 + i * 40, 40, 30)
-            self.bg_color_rects.append({'rect': rect, 'color': self.background_colors[i]})
-        
-        # Область миксового фона
-        self.mix_bg_rect = pygame.Rect(60, 180 + 5 * 40, 40, 30)
+    def ensure_seeds_different(self):
+        """Обеспечивает различие сидов по правилам"""
+        while True:
+            if self.brush_seed[0] == self.bg_seed[0]:
+                self.bg_seed = self.generate_seed()
+                continue
+            
+            # Проверка на минимум 2 различия в цветовых ключах
+            differences = sum(1 for i in range(1, 6) if self.brush_seed[i] != self.bg_seed[i])
+            if differences >= 2:
+                break
+            self.bg_seed = self.generate_seed()
     
-    def _draw_soft_brush(self, pos: Tuple[int, int], color: Tuple[int, int, int]) -> None:
-        """Рисует с размытой кистью."""
-        canvas_x = int((pos[0] - self.ui_width) / self.window_size * self.canvas_size)
-        canvas_y = int(pos[1] / self.window_size * self.canvas_size)
+    def seed_to_color(self, seed):
+        """Преобразует сид в миксовый цвет"""
+        angle_idx = int(seed[0], 16)
+        angle = angle_idx * math.pi / 12
         
-        # Пропускаем если кликнули по UI
-        if canvas_x < 0 or canvas_y < 0 or canvas_x >= self.canvas_size or canvas_y >= self.canvas_size:
+        color_indices = [int(seed[i], 16) % len(BASE_COLORS) for i in range(1, 6)]
+        colors = [BASE_COLORS[idx] for idx in color_indices]
+        
+        # Миксуем цвета с весами на основе угла
+        weights = [1 + math.sin(angle + i) for i in range(5)]
+        total_weight = sum(weights)
+        weights = [w / total_weight for w in weights]
+        
+        r = sum(c[0] * w for c, w in zip(colors, weights))
+        g = sum(c[1] * w for c, w in zip(colors, weights))
+        b = sum(c[2] * w for c, w in zip(colors, weights))
+        
+        return (int(r), int(g), int(b))
+    
+    def setup_ui(self):
+        # Главный контейнер
+        main_frame = tk.Frame(self.root)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Левая панель с кнопками и палитрами
+        left_panel = tk.Frame(main_frame, width=200, bg='#f0f0f0')
+        left_panel.pack(side=tk.LEFT, fill=tk.Y)
+        left_panel.pack_propagate(False)
+        
+        # Кнопки управления
+        btn_frame = tk.Frame(left_panel, bg='#f0f0f0')
+        btn_frame.pack(pady=10)
+        
+        tk.Button(btn_frame, text="Сохранить (S)", command=self.save_and_new, width=15).pack(pady=2)
+        tk.Button(btn_frame, text="Очистить (C)", command=self.clear_canvas, width=15).pack(pady=2)
+        tk.Button(btn_frame, text="Выход (V)", command=lambda: self.quit_app(False), width=15).pack(pady=2)
+        tk.Button(btn_frame, text="Сохр.и выход (Shift+V)", command=lambda: self.quit_app(True), width=15).pack(pady=2)
+        
+        # Палитра кисти
+        tk.Label(left_panel, text="Цвет кисти", bg='#f0f0f0', font=('Arial', 10, 'bold')).pack(pady=(10, 5))
+        self.brush_palette = tk.Frame(left_panel, bg='#f0f0f0')
+        self.brush_palette.pack()
+        self.create_color_palette(self.brush_palette, 'brush')
+        
+        # Палитра фона
+        tk.Label(left_panel, text="Цвет фона", bg='#f0f0f0', font=('Arial', 10, 'bold')).pack(pady=(20, 5))
+        self.bg_palette = tk.Frame(left_panel, bg='#f0f0f0')
+        self.bg_palette.pack()
+        self.create_color_palette(self.bg_palette, 'bg')
+        
+        # Область холста
+        canvas_frame = tk.Frame(main_frame)
+        canvas_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        self.canvas_display = tk.Canvas(canvas_frame, width=CANVAS_SIZE*PIXEL_SIZE, 
+                                        height=CANVAS_SIZE*PIXEL_SIZE, bg='white')
+        self.canvas_display.pack(padx=20, pady=20)
+        
+        # Биндинги мыши
+        self.canvas_display.bind('<Button-1>', self.start_drawing)
+        self.canvas_display.bind('<B1-Motion>', self.draw)
+        self.canvas_display.bind('<ButtonRelease-1>', self.stop_drawing)
+    
+    def create_color_palette(self, parent, palette_type):
+        """Создает палитру цветов в виде двух колонок"""
+        for i in range(6):
+            row_frame = tk.Frame(parent, bg='#f0f0f0')
+            row_frame.pack(pady=1)
+            
+            for j in range(2):
+                idx = i * 2 + j
+                if idx < len(BASE_COLORS):
+                    color = BASE_COLORS[idx]
+                    color_hex = f'#{color[0]:02x}{color[1]:02x}{color[2]:02x}'
+                    btn = tk.Button(row_frame, bg=color_hex, width=4, height=2,
+                                  command=lambda c=color, pt=palette_type: self.select_color(c, pt))
+                    btn.pack(side=tk.LEFT, padx=2)
+                elif idx == len(BASE_COLORS):
+                    # Кнопка микс
+                    btn = tk.Button(row_frame, text="MIX", width=4, height=2,
+                                  command=lambda pt=palette_type: self.select_mix_color(pt))
+                    btn.pack(side=tk.LEFT, padx=2)
+    
+    def select_color(self, color, palette_type):
+        """Выбор обычного цвета"""
+        if palette_type == 'brush':
+            self.current_brush_color = color
+            print(f"Цвет кисти: {color}")
+        else:
+            self.current_bg_color = color
+            self.fill_background(color)
+            print(f"Цвет фона: {color}")
+    
+    def select_mix_color(self, palette_type):
+        """Выбор миксового цвета"""
+        if palette_type == 'brush':
+            self.brush_seed = self.generate_seed()
+            self.ensure_seeds_different()
+            self.current_brush_color = self.seed_to_color(self.brush_seed)
+            print(f"Микс кисти (сид: {self.brush_seed}): {self.current_brush_color}")
+        else:
+            self.bg_seed = self.generate_seed()
+            self.ensure_seeds_different()
+            self.current_bg_color = self.seed_to_color(self.bg_seed)
+            self.fill_background(self.current_bg_color)
+            print(f"Микс фона (сид: {self.bg_seed}): {self.current_bg_color}")
+    
+    def fill_background(self, color):
+        """Заливает фон цветом"""
+        self.canvas_data[:, :] = color
+        self.update_canvas_display()
+    
+    def start_drawing(self, event):
+        self.drawing = True
+        self.draw(event)
+    
+    def stop_drawing(self, event):
+        self.drawing = False
+    
+    def draw(self, event):
+        """Рисование с размытием"""
+        if not self.drawing:
             return
         
-        radius = self.brush_size
-        base_color = pygame.Color(*color)
+        x = int(event.x / PIXEL_SIZE)
+        y = int(event.y / PIXEL_SIZE)
         
-        # Рисуем размытую кисть
-        for y in range(-radius, radius + 1):
-            for x in range(-radius, radius + 1):
-                px = canvas_x + x
-                py = canvas_y + y
-                
-                if 0 <= px < self.canvas_size and 0 <= py < self.canvas_size:
-                    distance = math.sqrt(x*x + y*y)
-                    if distance <= radius:
-                        # Вычисляем интенсивность на основе расстояния
-                        intensity = (1 - distance / radius) * self.brush_hardness
+        if 0 <= x < CANVAS_SIZE and 0 <= y < CANVAS_SIZE:
+            # Рисуем с мягким градиентом (3x3 область с альфа-блендингом)
+            for dy in range(-1, 2):
+                for dx in range(-1, 2):
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < CANVAS_SIZE and 0 <= ny < CANVAS_SIZE:
+                        # Вычисляем вес (центр сильнее)
+                        distance = math.sqrt(dx*dx + dy*dy)
+                        alpha = max(0, 1 - distance / 1.5)
                         
-                        # Получаем текущий цвет пикселя
-                        current_color = self._canvas.get_at((px, py))
-                        
-                        # Смешиваем цвета
-                        new_r = int(current_color.r * (1 - intensity) + base_color.r * intensity)
-                        new_g = int(current_color.g * (1 - intensity) + base_color.g * intensity)
-                        new_b = int(current_color.b * (1 - intensity) + base_color.b * intensity)
-                        
-                        self._canvas.set_at((px, py), (new_r, new_g, new_b))
-    
-    def _draw_ui(self) -> None:
-        """Отрисовывает интерфейс."""
-        # Фон UI
-        ui_bg = pygame.Rect(0, 0, self.ui_width, self.window_size)
-        pygame.draw.rect(self._screen, (50, 50, 50), ui_bg)
-        
-        # Кнопки
-        font = pygame.font.SysFont(None, 24)
-        for button_id, button_data in self.buttons.items():
-            color = (100, 100, 200) if button_id in ['save', 'save_quit'] else (200, 100, 100)
-            pygame.draw.rect(self._screen, color, button_data['rect'])
-            text = font.render(button_data['text'], True, (255, 255, 255))
-            text_rect = text.get_rect(center=button_data['rect'].center)
-            self._screen.blit(text, text_rect)
-        
-        # Заголовок "Brush | BG"
-        small_font = pygame.font.SysFont(None, 18)
-        title = small_font.render("Brush | BG", True, (255, 255, 255))
-        self._screen.blit(title, (15, 165))
-        
-        # Цвета кисти (левая колонка)
-        for i, color_rect in enumerate(self.brush_color_rects):
-            pygame.draw.rect(self._screen, color_rect['color'], color_rect['rect'])
-            # Рамка если выбран
-            if self.current_brush_color == color_rect['color']:
-                pygame.draw.rect(self._screen, (255, 255, 255), color_rect['rect'], 2)
-        
-        # Микс-цвет кисти
-        pygame.draw.rect(self._screen, self.mix_brush_color, self.mix_brush_rect)
-        if self.current_brush_color == self.mix_brush_color:
-            pygame.draw.rect(self._screen, (255, 255, 255), self.mix_brush_rect, 2)
-        mix_text = small_font.render("Mix", True, (255, 255, 255))
-        self._screen.blit(mix_text, (12, self.mix_brush_rect.y + 32))
-        
-        # Цвета фона (правая колонка)
-        for i, color_rect in enumerate(self.bg_color_rects):
-            pygame.draw.rect(self._screen, color_rect['color'], color_rect['rect'])
-            # Рамка если выбран
-            if self.current_bg_color == color_rect['color']:
-                pygame.draw.rect(self._screen, (255, 255, 255), color_rect['rect'], 2)
-        
-        # Микс-цвет фона
-        pygame.draw.rect(self._screen, self.mix_bg_color, self.mix_bg_rect)
-        if self.current_bg_color == self.mix_bg_color:
-            pygame.draw.rect(self._screen, (255, 255, 255), self.mix_bg_rect, 2)
-        mix_text = small_font.render("Mix", True, (255, 255, 255))
-        self._screen.blit(mix_text, (62, self.mix_bg_rect.y + 32))
-        
-        # Информация о сидах
-        seed_font = pygame.font.SysFont(None, 16)
-        bg_seed_text = seed_font.render(f"BG: {self.background_seed}", True, (200, 200, 200))
-        brush_seed_text = seed_font.render(f"Br: {self.brush_seed}", True, (200, 200, 200))
-        self._screen.blit(bg_seed_text, (10, 550))
-        self._screen.blit(brush_seed_text, (10, 570))
-    
-    def _handle_ui_click(self, pos: Tuple[int, int]) -> bool:
-        """Обрабатывает клики по интерфейсу."""
-        # Проверяем кнопки
-        for button_id, button_data in self.buttons.items():
-            if button_data['rect'].collidepoint(pos):
-                return button_data['action']
-        
-        # Проверяем выбор цвета кисти
-        for i, color_rect in enumerate(self.brush_color_rects):
-            if color_rect['rect'].collidepoint(pos):
-                self.current_brush_color = self.brush_colors[i]
-                return 'color_selected'
-        
-        if self.mix_brush_rect.collidepoint(pos):
-            self.current_brush_color = self.mix_brush_color
-            return 'color_selected'
-        
-        # Проверяем выбор цвета фона
-        for i, color_rect in enumerate(self.bg_color_rects):
-            if color_rect['rect'].collidepoint(pos):
-                self.current_bg_color = self.background_colors[i]
-                self._canvas.fill(self.current_bg_color)
-                return 'bg_selected'
-        
-        if self.mix_bg_rect.collidepoint(pos):
-            self.current_bg_color = self.mix_bg_color
-            self._canvas.fill(self.current_bg_color)
-            return 'bg_selected'
-        
-        return None
-    
-    def _handle_events(self) -> bool:
-        """Обработка событий."""
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return False
+                        # Блендим цвета
+                        old_color = self.canvas_data[ny, nx]
+                        new_color = [
+                            int(old_color[i] * (1 - alpha) + self.current_brush_color[i] * alpha)
+                            for i in range(3)
+                        ]
+                        self.canvas_data[ny, nx] = new_color
             
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:  # Левая кнопка мыши
-                    action = self._handle_ui_click(event.pos)
-                    if action == 'save':
-                        self.save_canvas()
-                        self.clear_canvas()
-                    elif action == 'clear':
-                        self.clear_canvas()
-                    elif action == 'quit':
-                        return False
-                    elif action == 'save_quit':
-                        self.save_canvas()
-                        return False
-            
-            elif event.type == pygame.MOUSEMOTION:
-                if event.buttons[0]:  # Левая кнопка зажата
-                    # Рисуем только если не в UI области
-                    if event.pos[0] > self.ui_width:
-                        self._draw_soft_brush(event.pos, self.current_brush_color)
-            
-            elif event.type == pygame.KEYDOWN:
-                if not self._handle_keydown(event):
-                    return False
-        
-        return True
+            self.update_canvas_display()
     
-    def _handle_keydown(self, event: pygame.event.Event) -> bool:
-        """Обработка горячих клавиш."""
-        keys = pygame.key.get_pressed()
+    def update_canvas_display(self):
+        """Обновляет отображение холста"""
+        # Создаем PIL изображение
+        img = Image.fromarray(self.canvas_data, 'RGB')
+        # Масштабируем
+        img = img.resize((CANVAS_SIZE * PIXEL_SIZE, CANVAS_SIZE * PIXEL_SIZE), Image.NEAREST)
         
-        if event.key == pygame.K_s:
-            self.save_canvas()
-            self.clear_canvas()
-            return True
-            
-        elif event.key == pygame.K_v:
-            if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]:
-                self.save_canvas()
-                print("Холст сохранен и программа завершена.")
-            else:
-                print("Программа завершена без сохранения.")
-            return False
-            
-        elif event.key == pygame.K_c:
-            self.clear_canvas()
-            return True
-            
-        return True
+        # Конвертируем в PhotoImage
+        self.photo = tk.PhotoImage(data=img.tobytes(), width=img.width, height=img.height)
+        self.canvas_display.create_image(0, 0, image=self.photo, anchor=tk.NW)
     
-    def _render(self) -> None:
-        """Отрисовка всего кадра."""
-        # Очищаем экран
-        self._screen.fill((0, 0, 0))
+    def save_and_new(self):
+        """Сохраняет холст и создает новый"""
+        filename = os.path.join(self.save_directory, f'canvas_{self.save_counter:04d}.png')
+        img = Image.fromarray(self.canvas_data, 'RGB')
+        img.save(filename)
+        print(f"Холст сохранен: {filename}")
         
-        # Отрисовываем масштабированный холст
-        scaled_canvas = pygame.transform.scale(self._canvas, 
-                                             (self.window_size, self.window_size))
-        self._screen.blit(scaled_canvas, (self.ui_width, 0))
-        
-        # Отрисовываем UI
-        self._draw_ui()
-        
-        # Обновляем дисплей
-        pygame.display.flip()
+        self.canvas_data[:, :] = 255
+        self.save_counter += 1
+        self.update_canvas_display()
     
-    def save_canvas(self) -> None:
-        """Сохраняет текущий холст."""
-        filename = os.path.join(self._save_directory, f'canvas_{self._save_counter:04d}.png')
-        pygame.image.save(self._canvas, filename)
-        print(f"Холст сохранен как {filename}")
-        self._save_counter += 1
+    def clear_canvas(self):
+        """Очищает холст"""
+        self.canvas_data[:, :] = 255
+        self.update_canvas_display()
+        print("Холст очищен")
     
-    def clear_canvas(self) -> None:
-        """Очищает холст текущим цветом фона."""
-        self._canvas.fill(self.current_bg_color)
-        print("Холст очищен.")
-    
-    def run(self, fps: int = 60) -> None:
-        """Запускает главный цикл приложения."""
-        clock = pygame.time.Clock()
-        running = True
-        
-        print("Управление:")
-        print("  S - Сохранить и очистить холст")
-        print("  V - Выйти без сохранения")
-        print("  Shift+V - Сохранить и выйти")
-        print("  C - Очистить холст")
-        print("  ЛКМ - Рисовать")
-        print("  ЛКМ на цветах - Выбрать цвет кисти/фона")
-        
-        while running:
-            running = self._handle_events()
-            self._render()
-            clock.tick(fps)
-        
-        self.quit()
-    
-    def quit(self) -> None:
-        """Корректно завершает работу."""
-        pygame.quit()
+    def quit_app(self, save_before_quit):
+        """Выход из приложения"""
+        if save_before_quit:
+            self.save_and_new()
+            print("Сохранено и завершено")
+        else:
+            print("Завершено без сохранения")
+        self.root.quit()
 
-
-# Пример использования
 if __name__ == "__main__":
-    # Можно задать свои сиды или оставить дефолтные
-    app = AdvancedPixelCanvas(
-        canvas_size=64,
-        window_size=600,
-        background_seed="a1b2c3",  # Сид фона
-        brush_seed="d4e5f6"        # Сид кисти
-    )
-    app.run()
+    root = tk.Tk()
+    app = PixelArtEditor(root)
+    root.mainloop()
