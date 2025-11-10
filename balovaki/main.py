@@ -71,11 +71,12 @@ class AdvancedPixelCanvas:
             raise ValueError("Сид фона и кисти не могут совпадать по первому символу")
         
         # Сравниваем цветовые символы (позиции 1-5)
-        bg_color_chars = set(self.background_seed[1:5])
-        brush_color_chars = set(self.brush_seed[1:5])
+        differences = 0
+        for i in range(1, 6):
+            if self.background_seed[i] != self.brush_seed[i]:
+                differences += 1
         
-        common_chars = bg_color_chars.intersection(brush_color_chars)
-        if len(common_chars) > 3:  # Если совпадает больше 3 цветовых символов
+        if differences < 2:
             raise ValueError("Сид фона и кисти должны отличаться минимум по 2 цветовым символам")
     
     def _generate_colors_from_seed(self, seed: str) -> List[Tuple[int, int, int]]:
@@ -157,16 +158,16 @@ class AdvancedPixelCanvas:
             self.brush_color_rects.append({'rect': rect, 'color': self.brush_colors[i]})
         
         # Область миксовой кисти
-        self.mix_brush_rect = pygame.Rect(60, 180, 40, 30)
+        self.mix_brush_rect = pygame.Rect(10, 180 + 5 * 40, 40, 30)
         
         # Области выбора цвета фона
         self.bg_color_rects = []
         for i in range(5):
-            rect = pygame.Rect(10, 380 + i * 40, 40, 30)
+            rect = pygame.Rect(60, 180 + i * 40, 40, 30)
             self.bg_color_rects.append({'rect': rect, 'color': self.background_colors[i]})
         
         # Область миксового фона
-        self.mix_bg_rect = pygame.Rect(60, 380, 40, 30)
+        self.mix_bg_rect = pygame.Rect(60, 180 + 5 * 40, 40, 30)
     
     def _draw_soft_brush(self, pos: Tuple[int, int], color: Tuple[int, int, int]) -> None:
         """Рисует с размытой кистью."""
@@ -180,22 +181,27 @@ class AdvancedPixelCanvas:
         radius = self.brush_size
         base_color = pygame.Color(*color)
         
-        # Создаем временную поверхность для альфа-рисования
-        temp_surface = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
-        
-        for y in range(-radius, radius):
-            for x in range(-radius, radius):
-                distance = math.sqrt(x*x + y*y)
-                if distance <= radius:
-                    # Вычисляем альфу на основе расстояния и жесткости
-                    alpha = int(255 * (1 - distance / radius) * self.brush_hardness)
-                    if alpha > 0:
-                        draw_color = (*base_color[:3], alpha)
-                        temp_surface.set_at((x + radius, y + radius), draw_color)
-        
-        # Накладываем временную поверхность на холст
-        self._canvas.blit(temp_surface, (canvas_x - radius, canvas_y - radius), 
-                         special_flags=pygame.BLEND_ALPHA_SDL2)
+        # Рисуем размытую кисть
+        for y in range(-radius, radius + 1):
+            for x in range(-radius, radius + 1):
+                px = canvas_x + x
+                py = canvas_y + y
+                
+                if 0 <= px < self.canvas_size and 0 <= py < self.canvas_size:
+                    distance = math.sqrt(x*x + y*y)
+                    if distance <= radius:
+                        # Вычисляем интенсивность на основе расстояния
+                        intensity = (1 - distance / radius) * self.brush_hardness
+                        
+                        # Получаем текущий цвет пикселя
+                        current_color = self._canvas.get_at((px, py))
+                        
+                        # Смешиваем цвета
+                        new_r = int(current_color.r * (1 - intensity) + base_color.r * intensity)
+                        new_g = int(current_color.g * (1 - intensity) + base_color.g * intensity)
+                        new_b = int(current_color.b * (1 - intensity) + base_color.b * intensity)
+                        
+                        self._canvas.set_at((px, py), (new_r, new_g, new_b))
     
     def _draw_ui(self) -> None:
         """Отрисовывает интерфейс."""
@@ -212,34 +218,43 @@ class AdvancedPixelCanvas:
             text_rect = text.get_rect(center=button_data['rect'].center)
             self._screen.blit(text, text_rect)
         
-        # Цвета кисти
-        title = font.render("Brush Colors:", True, (255, 255, 255))
-        self._screen.blit(title, (10, 150))
+        # Заголовок "Brush | BG"
+        small_font = pygame.font.SysFont(None, 18)
+        title = small_font.render("Brush | BG", True, (255, 255, 255))
+        self._screen.blit(title, (15, 165))
         
+        # Цвета кисти (левая колонка)
         for i, color_rect in enumerate(self.brush_color_rects):
             pygame.draw.rect(self._screen, color_rect['color'], color_rect['rect'])
+            # Рамка если выбран
+            if self.current_brush_color == color_rect['color']:
+                pygame.draw.rect(self._screen, (255, 255, 255), color_rect['rect'], 2)
         
         # Микс-цвет кисти
         pygame.draw.rect(self._screen, self.mix_brush_color, self.mix_brush_rect)
-        mix_text = font.render("Mix", True, (255, 255, 255))
-        self._screen.blit(mix_text, (65, 215))
+        if self.current_brush_color == self.mix_brush_color:
+            pygame.draw.rect(self._screen, (255, 255, 255), self.mix_brush_rect, 2)
+        mix_text = small_font.render("Mix", True, (255, 255, 255))
+        self._screen.blit(mix_text, (12, self.mix_brush_rect.y + 32))
         
-        # Цвета фона
-        title = font.render("BG Colors:", True, (255, 255, 255))
-        self._screen.blit(title, (10, 350))
-        
+        # Цвета фона (правая колонка)
         for i, color_rect in enumerate(self.bg_color_rects):
             pygame.draw.rect(self._screen, color_rect['color'], color_rect['rect'])
+            # Рамка если выбран
+            if self.current_bg_color == color_rect['color']:
+                pygame.draw.rect(self._screen, (255, 255, 255), color_rect['rect'], 2)
         
         # Микс-цвет фона
         pygame.draw.rect(self._screen, self.mix_bg_color, self.mix_bg_rect)
-        mix_text = font.render("Mix", True, (255, 255, 255))
-        self._screen.blit(mix_text, (65, 415))
+        if self.current_bg_color == self.mix_bg_color:
+            pygame.draw.rect(self._screen, (255, 255, 255), self.mix_bg_rect, 2)
+        mix_text = small_font.render("Mix", True, (255, 255, 255))
+        self._screen.blit(mix_text, (62, self.mix_bg_rect.y + 32))
         
         # Информация о сидах
-        seed_font = pygame.font.SysFont(None, 18)
+        seed_font = pygame.font.SysFont(None, 16)
         bg_seed_text = seed_font.render(f"BG: {self.background_seed}", True, (200, 200, 200))
-        brush_seed_text = seed_font.render(f"Brush: {self.brush_seed}", True, (200, 200, 200))
+        brush_seed_text = seed_font.render(f"Br: {self.brush_seed}", True, (200, 200, 200))
         self._screen.blit(bg_seed_text, (10, 550))
         self._screen.blit(brush_seed_text, (10, 570))
     
